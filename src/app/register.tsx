@@ -1,48 +1,62 @@
 import { router } from 'expo-router';
 import { useState } from 'react';
-import { KeyboardAvoidingView, Platform, SafeAreaView, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { Alert, KeyboardAvoidingView, Platform, SafeAreaView, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import BackButton from '../components/BackButton';
+import { supabase } from '../lib/supabase'; // <-- IMPORTANTE
 
 export default function RegisterScreen() {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [loading, setLoading] = useState(false);
 
-  const handleRegister = () => {
-    // Por ahora simulamos el registro exitoso y vamos al home
-    router.replace('/home');
+  const handleRegister = async () => {
+    if (!name || !email || !password) {
+      Alert.alert('Error', 'Por favor llena todos los campos');
+      return;
+    }
+    if (password !== confirmPassword) {
+      Alert.alert('Error', 'Las contraseñas no coinciden');
+      return;
+    }
+
+    setLoading(true);
+    const { error } = await supabase.auth.signUp({ 
+      email, 
+      password,
+      options: { data: { full_name: name } }
+    });
+
+    if (error) {
+      Alert.alert('Error al registrar', error.message);
+    } else {
+      Alert.alert('¡Éxito!', 'Tu cuenta ha sido creada. Ahora puedes iniciar sesión.');
+      router.replace('/login');
+    }
+    setLoading(false);
   };
 
   return (
     <SafeAreaView style={styles.container}>
-      <View style={styles.header}>
-        <BackButton />
-      </View>
-
+      <View style={styles.header}><BackButton /></View>
       <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
         <ScrollView contentContainerStyle={styles.scrollContent}>
           <Text style={styles.logoText}>BQ</Text>
           <Text style={styles.title}>Crear cuenta</Text>
           <Text style={styles.subtitle}>¡Comienza a florecer con nosotros!</Text>
-
           <View style={styles.form}>
             <Text style={styles.label}>Nombre</Text>
             <TextInput style={styles.input} value={name} onChangeText={setName} placeholder="Tu nombre" placeholderTextColor="#9BAA91" />
-
             <Text style={styles.label}>Correo electrónico</Text>
             <TextInput style={styles.input} value={email} onChangeText={setEmail} placeholder="ejemplo@correo.com" placeholderTextColor="#9BAA91" keyboardType="email-address" autoCapitalize="none" />
-
             <Text style={styles.label}>Contraseña</Text>
             <TextInput style={styles.input} value={password} onChangeText={setPassword} placeholder="••••••••" placeholderTextColor="#9BAA91" secureTextEntry />
-
             <Text style={styles.label}>Confirmar contraseña</Text>
             <TextInput style={styles.input} value={confirmPassword} onChangeText={setConfirmPassword} placeholder="••••••••" placeholderTextColor="#9BAA91" secureTextEntry />
-
-            <TouchableOpacity style={styles.button} onPress={handleRegister}>
-              <Text style={styles.buttonText}>Crear mi cuenta</Text>
+            <TouchableOpacity style={styles.button} onPress={handleRegister} disabled={loading}>
+              <Text style={styles.buttonText}>{loading ? 'Creando cuenta...' : 'Crear mi cuenta'}</Text>
             </TouchableOpacity>
-
             <TouchableOpacity style={styles.linkButton} onPress={() => router.back()}>
               <Text style={styles.linkText}>Ya tengo cuenta - Iniciar sesión</Text>
             </TouchableOpacity>

@@ -21,12 +21,13 @@ export default function BottomNav() {
           <TouchableOpacity
             key={tab.route}
             style={styles.tab}
-            onPress={() => router.push(tab.route as any)}
+            // AQUÍ ESTÁ EL CAMBIO: replace en lugar de push
+            onPress={() => router.replace(tab.route as any)}
           >
             <Ionicons
               name={tab.icon as any}
               size={24}
-              color={isActive ? '#342F29' : '#9BAA91'} // Espresso vs Verde Salvia
+              color={isActive ? '#342F29' : '#9BAA91'} 
             />
             <Text style={[styles.tabText, { color: isActive ? '#342F29' : '#9BAA91' }]}>
               {tab.name}
@@ -43,20 +44,12 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-around',
     alignItems: 'center',
-    backgroundColor: '#F8F5EF', // Marfil
+    backgroundColor: '#F8F5EF',
     paddingVertical: 10,
     borderTopWidth: 1,
-    borderTopColor: '#EBE5DA', // Arena
-    paddingBottom: 25, // Para que no choque con el borde del celular
+    borderTopColor: '#EBE5DA',
+    paddingBottom: 25,
   },
-  tab: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: 5,
-  },
-  tabText: {
-    fontSize: 12,
-    marginTop: 4,
-    fontWeight: '500',
-  },
+  tab: { alignItems: 'center', justifyContent: 'center', padding: 5 },
+  tabText: { fontSize: 12, marginTop: 4, fontWeight: '500' },
 });

@@ -1,13 +1,24 @@
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
-import { SafeAreaView, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { useState } from 'react';
+import { Modal, SafeAreaView, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 import BottomNav from '../components/BottomNav';
-import { toggleHabit } from '../store/habitsSlice'; // Importamos la acción
+import { deleteHabit, toggleHabit } from '../store/habitsSlice';
 
 export default function HabitsScreen() {
   const { habits = [] } = useSelector((state: any) => state.habits);
   const dispatch = useDispatch();
+  
+  // Estados para el modal de eliminación
+  const [habitToDelete, setHabitToDelete] = useState<{ id: string, name: string } | null>(null);
+
+  const confirmDelete = () => {
+    if (habitToDelete) {
+      dispatch(deleteHabit(habitToDelete.id));
+      setHabitToDelete(null); // Cerramos el modal
+    }
+  };
 
   return (
     <SafeAreaView style={styles.container}>
@@ -22,24 +33,32 @@ export default function HabitsScreen() {
             <Text style={styles.emptyText}>Aún no tienes hábitos.</Text>
           ) : (
             habits.map((habit: any) => (
-              // Al tocar la tarjeta, disparamos toggleHabit
-              <TouchableOpacity 
-                key={habit.id} 
-                style={styles.habitCard} 
-                onPress={() => dispatch(toggleHabit(habit.id))}
-              >
-                <Ionicons 
-                  name={habit.completed ? "checkmark-circle" : "ellipse-outline"} 
-                  size={24} 
-                  color={habit.completed ? "#9BAA91" : "#342F29"} 
-                />
-                <View style={styles.habitInfo}>
-                  <Text style={[styles.habitName, habit.completed && styles.habitCompleted]}>
-                    {habit.name}
-                  </Text>
-                  <Text style={styles.habitFreq}>Todos los días · +10 monedas</Text>
-                </View>
-              </TouchableOpacity>
+              <View key={habit.id} style={styles.habitCard}>
+                <TouchableOpacity 
+                  style={styles.habitClickableArea}
+                  onPress={() => dispatch(toggleHabit(habit.id))}
+                >
+                  <Ionicons 
+                    name={habit.completed ? "checkmark-circle" : "ellipse-outline"} 
+                    size={24} 
+                    color={habit.completed ? "#9BAA91" : "#342F29"} 
+                  />
+                  <View style={styles.habitInfo}>
+                    <Text style={[styles.habitName, habit.completed && styles.habitCompleted]}>
+                      {habit.name}
+                    </Text>
+                    <Text style={styles.habitFreq}>Todos los días · +10 monedas</Text>
+                  </View>
+                </TouchableOpacity>
+
+                {/* Botón de borrar */}
+                <TouchableOpacity 
+                  onPress={() => setHabitToDelete({ id: habit.id, name: habit.name })} 
+                  style={styles.deleteButton}
+                >
+                  <Ionicons name="trash-outline" size={20} color="#C0392B" />
+                </TouchableOpacity>
+              </View>
             ))
           )}
         </View>
@@ -50,6 +69,35 @@ export default function HabitsScreen() {
 
       </ScrollView>
       <BottomNav />
+
+      {/* MODAL DE CONFIRMACIÓN DE BORRADO */}
+      <Modal
+        visible={!!habitToDelete}
+        transparent={true}
+        animationType="fade"
+        onRequestClose={() => setHabitToDelete(null)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <Ionicons name="warning-outline" size={40} color="#C0392B" style={{ marginBottom: 10 }} />
+            <Text style={styles.modalTitle}>Eliminar hábito</Text>
+            <Text style={styles.modalText}>
+              ¿Estás seguro que quieres eliminar "{habitToDelete?.name}"?
+            </Text>
+            
+            <View style={styles.modalButtons}>
+              <TouchableOpacity style={styles.cancelButton} onPress={() => setHabitToDelete(null)}>
+                <Text style={styles.cancelButtonText}>Cancelar</Text>
+              </TouchableOpacity>
+              
+              <TouchableOpacity style={styles.deleteConfirmButton} onPress={confirmDelete}>
+                <Text style={styles.deleteConfirmText}>Eliminar</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
+
     </SafeAreaView>
   );
 }
@@ -62,25 +110,67 @@ const styles = StyleSheet.create({
   subtitle: { fontSize: 14, color: '#705849', marginTop: 5, marginBottom: 20 },
   listContainer: { marginBottom: 20 },
   emptyText: { color: '#705849', fontStyle: 'italic' },
+  
   habitCard: {
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: '#FFFFFF',
-    padding: 15,
     borderRadius: 10,
     marginBottom: 10,
     borderWidth: 1,
     borderColor: '#EBE5DA',
+    paddingRight: 15,
+  },
+  habitClickableArea: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 15,
   },
   habitInfo: { marginLeft: 15, flex: 1 },
   habitName: { fontSize: 16, fontWeight: 'bold', color: '#342F29' },
-  habitCompleted: { textDecorationLine: 'line-through', color: '#9BAA91' }, // Tachado cuando se completa
+  habitCompleted: { textDecorationLine: 'line-through', color: '#9BAA91' },
   habitFreq: { fontSize: 12, color: '#9BAA91', marginTop: 4 },
-  addButton: {
-    backgroundColor: '#705849',
-    padding: 15,
-    borderRadius: 10,
+  deleteButton: { padding: 10 },
+
+  addButton: { backgroundColor: '#705849', padding: 15, borderRadius: 10, alignItems: 'center' },
+  addButtonText: { color: '#F8F5EF', fontSize: 16, fontWeight: 'bold' },
+
+  // ESTILOS DEL MODAL
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(52, 47, 41, 0.7)', // Espresso con opacidad
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 20,
+  },
+  modalContent: {
+    backgroundColor: '#F8F5EF',
+    borderRadius: 15,
+    padding: 25,
+    width: '100%',
+    maxWidth: 400,
     alignItems: 'center',
   },
-  addButtonText: { color: '#F8F5EF', fontSize: 16, fontWeight: 'bold' },
+  modalTitle: { fontSize: 22, fontWeight: 'bold', color: '#342F29', marginBottom: 10 },
+  modalText: { fontSize: 16, color: '#705849', textAlign: 'center', marginBottom: 25, lineHeight: 22 },
+  modalButtons: { flexDirection: 'row', justifyContent: 'space-between', width: '100%' },
+  cancelButton: {
+    flex: 1,
+    backgroundColor: '#EBE5DA',
+    padding: 12,
+    borderRadius: 8,
+    alignItems: 'center',
+    marginRight: 10,
+  },
+  cancelButtonText: { color: '#705849', fontWeight: 'bold', fontSize: 16 },
+  deleteConfirmButton: {
+    flex: 1,
+    backgroundColor: '#C0392B',
+    padding: 12,
+    borderRadius: 8,
+    alignItems: 'center',
+    marginLeft: 10,
+  },
+  deleteConfirmText: { color: '#FFFFFF', fontWeight: 'bold', fontSize: 16 },
 });

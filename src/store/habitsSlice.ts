@@ -20,7 +20,8 @@ interface HabitsState {
   moodHistory: MoodEntry[];
   streak: number;
   lastLoginDate: string | null;
-  userName: string; 
+  userName: string;
+  lastHabitResetDate: string | null; // <-- NUEVO
 }
 
 const initialState: HabitsState = {
@@ -31,7 +32,8 @@ const initialState: HabitsState = {
   moodHistory: [],
   streak: 0,
   lastLoginDate: null,
-  userName: 'Persona Bloom', 
+  userName: 'Persona Bloom',
+  lastHabitResetDate: null,
 };
 
 const habitsSlice = createSlice({
@@ -47,6 +49,20 @@ const habitsSlice = createSlice({
         habit.completed = !habit.completed;
         if (habit.completed) state.coins += 10;
         else state.coins -= 10;
+      }
+    },
+    // NUEVA ACCIÓN: Borrar hábito
+    deleteHabit: (state, action: PayloadAction<string>) => {
+      state.habits = state.habits.filter((h) => h.id !== action.payload);
+    },
+    // NUEVA ACCIÓN: Reiniciar hábitos cada día
+    resetHabitsDaily: (state) => {
+      const today = new Date().toDateString();
+      if (state.lastHabitResetDate !== today) {
+        state.habits.forEach((habit) => {
+          habit.completed = false;
+        });
+        state.lastHabitResetDate = today;
       }
     },
     buyItem: (state, action: PayloadAction<{ item: string; price: number }>) => {
@@ -96,7 +112,6 @@ const habitsSlice = createSlice({
         state.lastLoginDate = today;
       }
     },
-    
     setUserName: (state, action: PayloadAction<string>) => {
       state.userName = action.payload;
     }
@@ -104,7 +119,7 @@ const habitsSlice = createSlice({
 });
 
 export const { 
-  addHabit, toggleHabit, buyItem, completeMission, 
+  addHabit, toggleHabit, deleteHabit, resetHabitsDaily, buyItem, completeMission, 
   addMood, addCoins, checkDailyStreak, setUserName 
 } = habitsSlice.actions;
 

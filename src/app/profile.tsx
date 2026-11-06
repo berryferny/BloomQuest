@@ -66,7 +66,7 @@ export default function ProfileScreen() {
             <Ionicons name="chevron-forward" size={20} color="#9BAA91" />
           </TouchableOpacity>
 
-          <TouchableOpacity style={styles.menuItem}>
+          <TouchableOpacity style={styles.menuItem} onPress={() => router.push('/settings')}>
             <Text style={styles.menuText}>Configuración</Text>
             <Ionicons name="chevron-forward" size={20} color="#9BAA91" />
           </TouchableOpacity>

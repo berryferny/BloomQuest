@@ -6,11 +6,18 @@ interface Habit {
   completed: boolean;
 }
 
+interface MoodEntry {
+  date: string;
+  mood: string;
+  emoji: string;
+}
+
 interface HabitsState {
   habits: Habit[];
   coins: number;
   inventory: string[];
   completedMissions: string[];
+  moodHistory: MoodEntry[]; // <-- NUEVO
 }
 
 const initialState: HabitsState = {
@@ -18,6 +25,7 @@ const initialState: HabitsState = {
   coins: 0,
   inventory: [],
   completedMissions: [],
+  moodHistory: [], // <-- NUEVO
 };
 
 const habitsSlice = createSlice({
@@ -42,16 +50,27 @@ const habitsSlice = createSlice({
       }
     },
     completeMission: (state, action: PayloadAction<{ missionId: string; reward: number }>) => {
-      if (!state.completedMissions) {
-        state.completedMissions = [];
-      }
+      if (!state.completedMissions) state.completedMissions = [];
       if (!state.completedMissions.includes(action.payload.missionId)) {
         state.completedMissions.push(action.payload.missionId);
         state.coins += action.payload.reward;
       }
     },
+    // NUEVA ACCIÓN
+    addMood: (state, action: PayloadAction<{ mood: string; emoji: string }>) => {
+      if (!state.moodHistory) state.moodHistory = []; // Prevención por si viene de estado viejo
+      
+      const newEntry = {
+        date: new Date().toLocaleDateString('es-ES', { weekday: 'short', day: 'numeric', month: 'short' }),
+        mood: action.payload.mood,
+        emoji: action.payload.emoji
+      };
+      
+      // Lo ponemos al principio para que lo más reciente salga primero
+      state.moodHistory.unshift(newEntry);
+    },
   },
 });
 
-export const { addHabit, toggleHabit, buyItem, completeMission } = habitsSlice.actions;
+export const { addHabit, toggleHabit, buyItem, completeMission, addMood } = habitsSlice.actions;
 export default habitsSlice.reducer;

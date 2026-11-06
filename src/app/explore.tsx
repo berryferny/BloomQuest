@@ -134,6 +134,25 @@ export default function ExploreScreen() {
 
           <Ionicons name="chevron-forward" size={21} color="#9BAA91" />
         </TouchableOpacity>
+                {/* NUEVA TARJETA: REGISTRO EMOCIONAL */}
+        <TouchableOpacity
+          style={styles.card}
+          onPress={() => router.push('/mood')}
+          activeOpacity={0.8}
+        >
+          <View style={styles.iconCircle}>
+            <Ionicons name="happy" size={25} color="#705849" />
+          </View>
+
+          <View style={styles.cardInfo}>
+            <Text style={styles.cardTitle}>¿Cómo me siento hoy?</Text>
+            <Text style={styles.cardText}>
+              Registra tus emociones y observa tu evolución.
+            </Text>
+          </View>
+
+          <Ionicons name="chevron-forward" size={21} color="#9BAA91" />
+        </TouchableOpacity>
 
         <View style={styles.comingSoon}>
           <Ionicons name="sparkles-outline" size={24} color="#705849" />

@@ -25,7 +25,11 @@ export default function RootLayout() {
           <Stack.Screen name="tip-detail" />
           <Stack.Screen name="profile" />
           <Stack.Screen name="settings" />
-          <Stack.Screen name="shop" /> 
+          <Stack.Screen name="achievements" />
+          <Stack.Screen name="stats" />
+          <Stack.Screen name="mood" />
+          <Stack.Screen name="mood-history" />
+          <Stack.Screen name="shop" />
         </Stack>
       </PersistGateComponent>
     </Provider>

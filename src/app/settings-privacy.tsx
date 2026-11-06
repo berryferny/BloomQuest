@@ -1,4 +1,5 @@
 import { Ionicons } from '@expo/vector-icons';
+import { router } from 'expo-router';
 import { SafeAreaView, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import BackButton from '../components/BackButton';
 
@@ -15,7 +16,7 @@ export default function PrivacySettingsScreen() {
         <Text style={styles.subtitle}>Tu información y tus decisiones.</Text>
 
         <View style={styles.menuContainer}>
-          <TouchableOpacity style={styles.menuItem}>
+          <TouchableOpacity style={styles.menuItem} onPress={() => router.push('/settings-personal-data')}>
             <View>
               <Text style={styles.menuTitle}>Datos de mi cuenta</Text>
               <Text style={styles.menuSubtitle}>Revisar información personal</Text>

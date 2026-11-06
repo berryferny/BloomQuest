@@ -7,7 +7,8 @@ import BottomNav from '../components/BottomNav';
 import { checkDailyStreak, toggleHabit } from '../store/habitsSlice';
 
 export default function HomeScreen() {
-  const { habits = [], coins = 0, streak = 0 } = useSelector((state: any) => state.habits);
+  // Agregamos userName para leerlo de Redux
+  const { habits = [], coins = 0, streak = 0, userName = 'Persona Bloom' } = useSelector((state: any) => state.habits);
   const dispatch = useDispatch();
 
   // Revisar racha al montar la pantalla
@@ -23,7 +24,7 @@ export default function HomeScreen() {
     <SafeAreaView style={styles.container}>
       <ScrollView contentContainerStyle={styles.scrollContent}>
         
-        {/* Encabezado con Racha */}
+        {/* Encabezado con Racha y Nombre */}
         <View style={styles.header}>
           <View style={styles.headerTop}>
             <Text style={styles.logoText}>BQ</Text>
@@ -31,7 +32,7 @@ export default function HomeScreen() {
               <Text style={styles.streakText}>🔥 {streak} días</Text>
             </View>
           </View>
-          <Text style={styles.greeting}>¡Buen día!</Text>
+          <Text style={styles.greeting}>¡Buen día, {userName}!</Text>
           <Text style={styles.subtitle}>Hoy es un buen día para seguir creciendo.</Text>
         </View>
 

@@ -18,8 +18,9 @@ interface HabitsState {
   inventory: string[];
   completedMissions: string[];
   moodHistory: MoodEntry[];
-  streak: number; // <-- NUEVO
-  lastLoginDate: string | null; // <-- NUEVO
+  streak: number;
+  lastLoginDate: string | null;
+  userName: string; 
 }
 
 const initialState: HabitsState = {
@@ -30,6 +31,7 @@ const initialState: HabitsState = {
   moodHistory: [],
   streak: 0,
   lastLoginDate: null,
+  userName: 'Persona Bloom', 
 };
 
 const habitsSlice = createSlice({
@@ -72,41 +74,38 @@ const habitsSlice = createSlice({
     addCoins: (state, action: PayloadAction<number>) => {
       state.coins += action.payload;
     },
-    // NUEVA LÓGICA DE RACHA
     checkDailyStreak: (state) => {
       const today = new Date().toDateString();
-      
       if (!state.lastLoginDate) {
-        // Primer día
         state.streak = 1;
         state.lastLoginDate = today;
-        state.coins += 10; // Bono de bienvenida
+        state.coins += 10; 
       } else if (state.lastLoginDate !== today) {
         const lastDate = new Date(state.lastLoginDate);
         const currentDate = new Date(today);
-        
-        // Calcular diferencia en días
         const diffTime = Math.abs(currentDate.getTime() - lastDate.getTime());
         const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 
         if (diffDays === 1) {
-          // Entró ayer, racha aumenta
           state.streak += 1;
-          state.coins += 20; // Bono por mantener racha
+          state.coins += 20; 
         } else {
-          // Perdió la racha
           state.streak = 1;
           state.coins += 10;
         }
         state.lastLoginDate = today;
       }
     },
+    
+    setUserName: (state, action: PayloadAction<string>) => {
+      state.userName = action.payload;
+    }
   },
 });
 
 export const { 
   addHabit, toggleHabit, buyItem, completeMission, 
-  addMood, addCoins, checkDailyStreak 
+  addMood, addCoins, checkDailyStreak, setUserName 
 } = habitsSlice.actions;
 
 export default habitsSlice.reducer;

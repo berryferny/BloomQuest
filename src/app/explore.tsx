@@ -1,4 +1,3 @@
-
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import { ScrollView, Text, TouchableOpacity, View } from 'react-native';
@@ -76,6 +75,27 @@ export default function ExploreScreen() {
 
           <Ionicons name="chevron-forward" size={21} color="#9BAA91" />
         </TouchableOpacity>
+
+        {/* NUEVA TARJETA: RESPIRA CONMIGO */}
+        <TouchableOpacity
+          style={styles.card}
+          onPress={() => router.push('/breathe')}
+          activeOpacity={0.8}
+        >
+          <View style={styles.iconCircle}>
+            <Ionicons name="leaf-outline" size={25} color="#705849" />
+          </View>
+
+          <View style={styles.cardInfo}>
+            <Text style={styles.cardTitle}>Respira conmigo</Text>
+            <Text style={styles.cardText}>
+              Tómate un momento de calma y respira.
+            </Text>
+          </View>
+
+          <Ionicons name="chevron-forward" size={21} color="#9BAA91" />
+        </TouchableOpacity>
+        {/* FIN NUEVA TARJETA */}
 
         <View style={styles.comingSoon}>
           <Ionicons name="sparkles-outline" size={24} color="#705849" />

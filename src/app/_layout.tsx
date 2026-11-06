@@ -20,6 +20,7 @@ export default function RootLayout() {
           <Stack.Screen name="explore" />
           <Stack.Screen name="breathe" />
           <Stack.Screen name="garden" />
+          <Stack.Screen name="missions" />
           <Stack.Screen name="profile" />
           <Stack.Screen name="shop" /> 
         </Stack>

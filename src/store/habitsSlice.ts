@@ -9,13 +9,15 @@ interface Habit {
 interface HabitsState {
   habits: Habit[];
   coins: number;
-  inventory: string[]; 
+  inventory: string[];
+  completedMissions: string[];
 }
 
 const initialState: HabitsState = {
   habits: [],
   coins: 0,
   inventory: [],
+  completedMissions: [],
 };
 
 const habitsSlice = createSlice({
@@ -29,11 +31,8 @@ const habitsSlice = createSlice({
       const habit = state.habits.find((h) => h.id === action.payload);
       if (habit) {
         habit.completed = !habit.completed;
-        if (habit.completed) {
-          state.coins += 10;
-        } else {
-          state.coins -= 10;
-        }
+        if (habit.completed) state.coins += 10;
+        else state.coins -= 10;
       }
     },
     buyItem: (state, action: PayloadAction<{ item: string; price: number }>) => {
@@ -42,8 +41,17 @@ const habitsSlice = createSlice({
         state.inventory.push(action.payload.item);
       }
     },
+    completeMission: (state, action: PayloadAction<{ missionId: string; reward: number }>) => {
+      if (!state.completedMissions) {
+        state.completedMissions = [];
+      }
+      if (!state.completedMissions.includes(action.payload.missionId)) {
+        state.completedMissions.push(action.payload.missionId);
+        state.coins += action.payload.reward;
+      }
+    },
   },
 });
 
-export const { addHabit, toggleHabit, buyItem } = habitsSlice.actions;
+export const { addHabit, toggleHabit, buyItem, completeMission } = habitsSlice.actions;
 export default habitsSlice.reducer;

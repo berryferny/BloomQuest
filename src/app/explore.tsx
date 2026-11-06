@@ -76,7 +76,7 @@ export default function ExploreScreen() {
           <Ionicons name="chevron-forward" size={21} color="#9BAA91" />
         </TouchableOpacity>
 
-        {/* NUEVA TARJETA: RESPIRA CONMIGO */}
+        
         <TouchableOpacity
           style={styles.card}
           onPress={() => router.push('/breathe')}
@@ -95,7 +95,26 @@ export default function ExploreScreen() {
 
           <Ionicons name="chevron-forward" size={21} color="#9BAA91" />
         </TouchableOpacity>
-        {/* FIN NUEVA TARJETA */}
+
+                {/* NUEVA TARJETA: MISIONES RÁPIDAS */}
+        <TouchableOpacity
+          style={styles.card}
+          onPress={() => router.push('/missions')}
+          activeOpacity={0.8}
+        >
+          <View style={styles.iconCircle}>
+            <Ionicons name="star" size={25} color="#705849" />
+          </View>
+
+          <View style={styles.cardInfo}>
+            <Text style={styles.cardTitle}>Misiones rápidas</Text>
+            <Text style={styles.cardText}>
+              Completa retos pequeños y gana monedas.
+            </Text>
+          </View>
+
+          <Ionicons name="chevron-forward" size={21} color="#9BAA91" />
+        </TouchableOpacity>
 
         <View style={styles.comingSoon}>
           <Ionicons name="sparkles-outline" size={24} color="#705849" />

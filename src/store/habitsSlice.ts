@@ -17,7 +17,9 @@ interface HabitsState {
   coins: number;
   inventory: string[];
   completedMissions: string[];
-  moodHistory: MoodEntry[]; // <-- NUEVO
+  moodHistory: MoodEntry[];
+  streak: number; // <-- NUEVO
+  lastLoginDate: string | null; // <-- NUEVO
 }
 
 const initialState: HabitsState = {
@@ -25,7 +27,9 @@ const initialState: HabitsState = {
   coins: 0,
   inventory: [],
   completedMissions: [],
-  moodHistory: [], // <-- NUEVO
+  moodHistory: [],
+  streak: 0,
+  lastLoginDate: null,
 };
 
 const habitsSlice = createSlice({
@@ -35,7 +39,6 @@ const habitsSlice = createSlice({
     addHabit: (state, action: PayloadAction<{ id: string; name: string; completed: boolean }>) => {
       state.habits.push(action.payload);
     },
-    
     toggleHabit: (state, action: PayloadAction<string>) => {
       const habit = state.habits.find((h) => h.id === action.payload);
       if (habit) {
@@ -57,24 +60,53 @@ const habitsSlice = createSlice({
         state.coins += action.payload.reward;
       }
     },
-    // NUEVA ACCIÓN
     addMood: (state, action: PayloadAction<{ mood: string; emoji: string }>) => {
-      if (!state.moodHistory) state.moodHistory = []; // Prevención por si viene de estado viejo
-      
+      if (!state.moodHistory) state.moodHistory = [];
       const newEntry = {
         date: new Date().toLocaleDateString('es-ES', { weekday: 'short', day: 'numeric', month: 'short' }),
         mood: action.payload.mood,
         emoji: action.payload.emoji
       };
-      
-      // Lo ponemos al principio para que lo más reciente salga primero
       state.moodHistory.unshift(newEntry);
     },
     addCoins: (state, action: PayloadAction<number>) => {
       state.coins += action.payload;
     },
+    // NUEVA LÓGICA DE RACHA
+    checkDailyStreak: (state) => {
+      const today = new Date().toDateString();
+      
+      if (!state.lastLoginDate) {
+        // Primer día
+        state.streak = 1;
+        state.lastLoginDate = today;
+        state.coins += 10; // Bono de bienvenida
+      } else if (state.lastLoginDate !== today) {
+        const lastDate = new Date(state.lastLoginDate);
+        const currentDate = new Date(today);
+        
+        // Calcular diferencia en días
+        const diffTime = Math.abs(currentDate.getTime() - lastDate.getTime());
+        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+        if (diffDays === 1) {
+          // Entró ayer, racha aumenta
+          state.streak += 1;
+          state.coins += 20; // Bono por mantener racha
+        } else {
+          // Perdió la racha
+          state.streak = 1;
+          state.coins += 10;
+        }
+        state.lastLoginDate = today;
+      }
+    },
   },
 });
 
-export const { addHabit, toggleHabit, buyItem, completeMission, addMood, addCoins } = habitsSlice.actions;
+export const { 
+  addHabit, toggleHabit, buyItem, completeMission, 
+  addMood, addCoins, checkDailyStreak 
+} = habitsSlice.actions;
+
 export default habitsSlice.reducer;

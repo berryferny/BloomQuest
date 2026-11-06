@@ -1,13 +1,19 @@
 import { Ionicons } from '@expo/vector-icons';
-import { router } from 'expo-router'; // Para navegar a crear hábito
+import { router } from 'expo-router';
+import { useEffect } from 'react';
 import { SafeAreaView, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 import BottomNav from '../components/BottomNav';
-import { toggleHabit } from '../store/habitsSlice'; // Para marcar el hábito
+import { checkDailyStreak, toggleHabit } from '../store/habitsSlice';
 
 export default function HomeScreen() {
-  const { habits = [], coins = 0 } = useSelector((state: any) => state.habits);
+  const { habits = [], coins = 0, streak = 0 } = useSelector((state: any) => state.habits);
   const dispatch = useDispatch();
+
+  // Revisar racha al montar la pantalla
+  useEffect(() => {
+    dispatch(checkDailyStreak());
+  }, [dispatch]);
 
   const totalHabits = habits.length;
   const completedHabits = habits.filter((h: any) => h.completed).length;
@@ -17,9 +23,14 @@ export default function HomeScreen() {
     <SafeAreaView style={styles.container}>
       <ScrollView contentContainerStyle={styles.scrollContent}>
         
-        {/* Encabezado */}
+        {/* Encabezado con Racha */}
         <View style={styles.header}>
-          <Text style={styles.logoText}>BQ</Text>
+          <View style={styles.headerTop}>
+            <Text style={styles.logoText}>BQ</Text>
+            <View style={styles.streakBadge}>
+              <Text style={styles.streakText}>🔥 {streak} días</Text>
+            </View>
+          </View>
           <Text style={styles.greeting}>¡Buen día!</Text>
           <Text style={styles.subtitle}>Hoy es un buen día para seguir creciendo.</Text>
         </View>
@@ -31,7 +42,6 @@ export default function HomeScreen() {
             <Text style={styles.progressStats}>{completedHabits} de {totalHabits} hábitos</Text>
             <Text style={styles.progressPercent}>{progressPercent}%</Text>
           </View>
-          {/* Barra de progreso visual */}
           <View style={styles.progressBarBackground}>
             <View style={[styles.progressBarFill, { width: `${progressPercent}%` }]} />
           </View>
@@ -43,7 +53,6 @@ export default function HomeScreen() {
           <Text style={styles.emptyText}>No tienes hábitos aún.</Text>
         ) : (
           habits.slice(0, 3).map((habit: any) => (
-            // Aquí agregamos el TouchableOpacity y el dispatch para que funcione
             <TouchableOpacity 
               key={habit.id} 
               style={styles.habitItem}
@@ -75,8 +84,19 @@ export default function HomeScreen() {
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#F8F5EF' },
   scrollContent: { padding: 20, paddingBottom: 40 },
+  
   header: { marginBottom: 20 },
-  logoText: { fontSize: 32, fontWeight: 'bold', color: '#342F29', marginBottom: 10 },
+  headerTop: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 },
+  logoText: { fontSize: 32, fontWeight: 'bold', color: '#342F29' },
+  streakBadge: {
+    backgroundColor: '#EBE5DA',
+    paddingHorizontal: 15,
+    paddingVertical: 8,
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: '#D3C9BD',
+  },
+  streakText: { fontSize: 16, fontWeight: 'bold', color: '#705849' },
   greeting: { fontSize: 24, fontWeight: 'bold', color: '#342F29' },
   subtitle: { fontSize: 14, color: '#705849', marginTop: 5 },
   
@@ -107,7 +127,7 @@ const styles = StyleSheet.create({
     borderColor: '#EBE5DA',
   },
   habitText: { fontSize: 16, color: '#342F29', marginLeft: 15 },
-  habitCompleted: { textDecorationLine: 'line-through', color: '#9BAA91' }, // Estilo tachado
+  habitCompleted: { textDecorationLine: 'line-through', color: '#9BAA91' },
 
   createButton: {
     backgroundColor: '#705849',

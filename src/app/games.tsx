@@ -30,11 +30,12 @@ export default function GamesScreen() {
           <Ionicons name="chevron-forward" size={20} color="#9BAA91" />
         </TouchableOpacity>
 
-        <TouchableOpacity style={styles.card} onPress={showComingSoon}>
+        <TouchableOpacity style={styles.card} onPress={() => router.push('/garden-game')}>
           <Text style={styles.emoji}>🪴</Text>
           <Text style={styles.cardText}>Ordena el Jardín</Text>
           <Ionicons name="chevron-forward" size={20} color="#9BAA91" />
         </TouchableOpacity>
+        
                 <TouchableOpacity style={styles.card} onPress={() => router.push('/stars-game')}>
           <Text style={styles.emoji}>⭐</Text>
           <Text style={styles.cardText}>Atrapa Estrellas</Text>

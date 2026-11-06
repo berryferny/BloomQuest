@@ -32,7 +32,8 @@ export default function RootLayout() {
           <Stack.Screen name="games" />        
           <Stack.Screen name="memory-game" /> 
           <Stack.Screen name="trivia" />
-           <Stack.Screen name="stars-game" />   
+          <Stack.Screen name="stars-game" /> 
+          <Stack.Screen name="garden-game" />   
           <Stack.Screen name="shop" />
         </Stack>
       </PersistGateComponent>

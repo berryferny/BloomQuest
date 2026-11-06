@@ -31,6 +31,7 @@ export default function RootLayout() {
           <Stack.Screen name="mood-history" />
           <Stack.Screen name="games" />        
           <Stack.Screen name="memory-game" /> 
+          <Stack.Screen name="trivia" />  
           <Stack.Screen name="shop" />
         </Stack>
       </PersistGateComponent>

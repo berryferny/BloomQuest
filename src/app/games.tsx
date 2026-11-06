@@ -24,9 +24,9 @@ export default function GamesScreen() {
           <Ionicons name="chevron-forward" size={20} color="#9BAA91" />
         </TouchableOpacity>
 
-        <TouchableOpacity style={styles.card} onPress={showComingSoon}>
-          <Text style={styles.emoji}>🌻</Text>
-          <Text style={styles.cardText}>Atrapa Estrellas</Text>
+        <TouchableOpacity style={styles.card} onPress={() => router.push('/trivia')}>
+          <Text style={styles.emoji}>🧠</Text>
+          <Text style={styles.cardText}>Preguntas que Florecen</Text>
           <Ionicons name="chevron-forward" size={20} color="#9BAA91" />
         </TouchableOpacity>
 

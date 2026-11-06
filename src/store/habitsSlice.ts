@@ -1,82 +1,41 @@
-
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
-export type Habit = {
+interface Habit {
   id: string;
-  nombre: string;
-  frecuencia: string;
-  completado: boolean;
-};
+  name: string;
+  completed: boolean;
+}
 
-type HabitsState = {
-  habitos: Habit[];
-  monedas: number;
-};
+interface HabitsState {
+  habits: Habit[];
+  coins: number;
+}
 
 const initialState: HabitsState = {
-  monedas: 0,
-
-  habitos: [
-    {
-      id: '1',
-      nombre: 'Hidratarme',
-      frecuencia: 'Todos los días',
-      completado: false,
-    },
-    {
-      id: '2',
-      nombre: 'Estudiar',
-      frecuencia: 'Todos los días',
-      completado: false,
-    },
-    {
-      id: '3',
-      nombre: 'Mover mi cuerpo',
-      frecuencia: 'Todos los días',
-      completado: false,
-    },
-    {
-      id: '4',
-      nombre: 'Descansar mejor',
-      frecuencia: 'Todos los días',
-      completado: false,
-    },
-  ],
+  habits: [],
+  coins: 0, // Empezamos con 0 monedas
 };
 
 const habitsSlice = createSlice({
   name: 'habits',
   initialState,
-
   reducers: {
-    agregarHabito: (state, action: PayloadAction<Habit>) => {
-      state.habitos.push(action.payload);
+    addHabit: (state, action: PayloadAction<{ id: string; name: string; completed: boolean }>) => {
+      state.habits.push(action.payload);
     },
-
-    cambiarEstadoHabito: (
-      state,
-      action: PayloadAction<string>
-    ) => {
-      const habito = state.habitos.find(
-        (h) => h.id === action.payload
-      );
-
-      if (!habito) return;
-
-      if (habito.completado) {
-        habito.completado = false;
-        state.monedas = Math.max(0, state.monedas - 10);
-      } else {
-        habito.completado = true;
-        state.monedas += 10;
+    toggleHabit: (state, action: PayloadAction<string>) => {
+      const habit = state.habits.find((h) => h.id === action.payload);
+      if (habit) {
+        habit.completed = !habit.completed;
+        if (habit.completed) {
+          state.coins += 10; // +10 monedas al completar
+        } else {
+          state.coins -= 10; // -10 monedas al desmarcar
+        }
       }
     },
   },
 });
 
-export const {
-  agregarHabito,
-  cambiarEstadoHabito,
-} = habitsSlice.actions;
-
+export const { addHabit, toggleHabit } = habitsSlice.actions;
 export default habitsSlice.reducer;

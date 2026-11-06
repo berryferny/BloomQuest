@@ -1,128 +1,108 @@
-
-import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import { useState } from 'react';
-import {
-  Alert,
-  ScrollView,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View,
-} from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { Alert, SafeAreaView, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { useDispatch } from 'react-redux';
-
 import BackButton from '../components/BackButton';
-import type { AppDispatch } from '../store';
-import { agregarHabito } from '../store/habitsSlice';
-import { createHabitStyles as styles } from '../styles/create-habit.styles';
+// IMPORTANTE: Asegúrate de importar tu acción. Cambia 'addHabit' por el nombre real de tu acción en habitsSlice.ts
+import { addHabit } from '../store/habitsSlice';
 
 export default function CreateHabitScreen() {
-  const dispatch = useDispatch<AppDispatch>();
+  const [habitName, setHabitName] = useState('');
+  const dispatch = useDispatch();
 
-  const [nombre, setNombre] = useState('');
-  const [frecuencia, setFrecuencia] = useState('Todos los días');
-
-  const guardarHabito = () => {
-    if (!nombre.trim()) {
-      Alert.alert(
-        'Falta un detalle 🌱',
-        'Escribe el nombre de tu hábito.'
-      );
+  const handleSave = () => {
+    if (habitName.trim() === '') {
+      Alert.alert('Error', 'Por favor escribe un nombre para el hábito.');
       return;
     }
 
-    dispatch(
-      agregarHabito({
-        id: `${Date.now()}`,
-        nombre: nombre.trim(),
-        frecuencia,
-        completado: false,
-      })
-    );
+    // Aquí enviamos el hábito a Redux
+    // Ajusta los campos según lo que pida tu Slice (ej. si pide un ID, un completed: false, etc.)
+    dispatch(addHabit({
+      id: Date.now().toString(), // Genera un ID rápido
+      name: habitName,
+      completed: false
+    }));
 
-    router.replace('/habits');
+    // Regresamos a la pantalla anterior
+    router.back();
   };
 
   return (
     <SafeAreaView style={styles.container}>
-      <ScrollView contentContainerStyle={styles.content}>
+      <View style={styles.header}>
         <BackButton />
+      </View>
 
-        <Text style={styles.title}>Crear hábito</Text>
-
-        <Text style={styles.subtitle}>
-          Cada pequeño cambio es una semilla de crecimiento.
-        </Text>
-
-        <Text style={styles.label}>Nombre del hábito</Text>
-
-        <TextInput
-          style={styles.input}
-          placeholder="Ej. Leer 20 minutos"
-          placeholderTextColor="#9B9188"
-          value={nombre}
-          onChangeText={setNombre}
-          maxLength={50}
-        />
-
-        <Text style={styles.label}>Frecuencia</Text>
-
-        <View style={styles.optionsContainer}>
-          {[
-            'Todos los días',
-            'Entre semana',
-            'Fines de semana',
-          ].map((opcion) => (
-            <TouchableOpacity
-              key={opcion}
-              style={[
-                styles.option,
-                frecuencia === opcion && styles.optionSelected,
-              ]}
-              onPress={() => setFrecuencia(opcion)}
-            >
-              <Ionicons
-                name={
-                  frecuencia === opcion
-                    ? 'radio-button-on'
-                    : 'radio-button-off'
-                }
-                size={21}
-                color="#705849"
-              />
-              <Text style={styles.optionText}>{opcion}</Text>
-            </TouchableOpacity>
-          ))}
-        </View>
-
-        <View style={styles.rewardCard}>
-          <Ionicons
-            name="sparkles-outline"
-            size={25}
-            color="#705849"
+      <ScrollView contentContainerStyle={styles.scrollContent}>
+        <Text style={styles.logoText}>BQ</Text>
+        <Text style={styles.title}>Nuevo hábito</Text>
+        <Text style={styles.subtitle}>Construye una rutina a tu ritmo</Text>
+        
+        <View style={styles.formContainer}>
+          <Text style={styles.label}>Nombre del hábito</Text>
+          <TextInput 
+            style={styles.input} 
+            placeholder="Ej. Leer 10 minutos" 
+            placeholderTextColor="#9BAA91"
+            value={habitName}
+            onChangeText={setHabitName}
           />
 
-          <View style={styles.rewardInfo}>
-            <Text style={styles.rewardTitle}>
-              ¡Tu esfuerzo vale!
-            </Text>
-            <Text style={styles.rewardDescription}>
-              Completa este hábito y gana 10 monedas.
-            </Text>
-          </View>
+          <Text style={styles.label}>Frecuencia</Text>
+          <TouchableOpacity style={styles.inputFake}>
+            <Text style={styles.inputText}>Todos los días</Text>
+          </TouchableOpacity>
+
+          <Text style={styles.label}>Hora del recordatorio</Text>
+          <TouchableOpacity style={styles.inputFake}>
+            <Text style={styles.inputText}>8:00 a. m.</Text>
+          </TouchableOpacity>
         </View>
 
-        <TouchableOpacity
-          style={styles.saveButton}
-          onPress={guardarHabito}
-        >
-          <Text style={styles.saveButtonText}>
-            Guardar hábito
-          </Text>
+        <TouchableOpacity style={styles.button} onPress={handleSave}>
+          <Text style={styles.buttonText}>Guardar hábito</Text>
         </TouchableOpacity>
       </ScrollView>
     </SafeAreaView>
   );
 }
+
+const styles = StyleSheet.create({
+  container: { flex: 1, backgroundColor: '#F8F5EF' },
+  header: { paddingHorizontal: 10, paddingTop: 10 },
+  scrollContent: { padding: 20, paddingBottom: 40 },
+  logoText: { fontSize: 32, fontWeight: 'bold', color: '#342F29', marginBottom: 10 },
+  title: { fontSize: 24, fontWeight: 'bold', color: '#342F29' },
+  subtitle: { fontSize: 14, color: '#705849', marginTop: 5, marginBottom: 30 },
+  
+  formContainer: { marginBottom: 30 },
+  label: { fontSize: 14, fontWeight: 'bold', color: '#705849', marginBottom: 8 },
+  input: {
+    backgroundColor: '#FFFFFF',
+    borderWidth: 1,
+    borderColor: '#EBE5DA',
+    borderRadius: 10,
+    padding: 15,
+    fontSize: 16,
+    marginBottom: 20,
+    color: '#342F29',
+  },
+  inputFake: {
+    backgroundColor: '#FFFFFF',
+    borderWidth: 1,
+    borderColor: '#EBE5DA',
+    borderRadius: 10,
+    padding: 15,
+    marginBottom: 20,
+  },
+  inputText: { fontSize: 16, color: '#342F29' },
+
+  button: {
+    backgroundColor: '#705849',
+    padding: 15,
+    borderRadius: 10,
+    alignItems: 'center',
+  },
+  buttonText: { color: '#F8F5EF', fontSize: 16, fontWeight: 'bold' },
+});

@@ -1,155 +1,86 @@
-
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
-import { ScrollView, Text, TouchableOpacity, View } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaView, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
-
 import BottomNav from '../components/BottomNav';
-import type { AppDispatch, RootState } from '../store';
-import { cambiarEstadoHabito } from '../store/habitsSlice';
-import { habitStyles as styles } from '../styles/habits.styles';
+import { toggleHabit } from '../store/habitsSlice'; // Importamos la acción
 
 export default function HabitsScreen() {
-  const dispatch = useDispatch<AppDispatch>();
-
-  const habitos = useSelector(
-    (state: RootState) => state.habits.habitos
-  );
-
-  const monedas = useSelector(
-    (state: RootState) => state.habits.monedas
-  );
-
-  const completados = habitos.filter(
-    habito => habito.completado
-  ).length;
-
-  const porcentaje = habitos.length
-    ? (completados / habitos.length) * 100
-    : 0;
+  const { habits = [] } = useSelector((state: any) => state.habits);
+  const dispatch = useDispatch();
 
   return (
     <SafeAreaView style={styles.container}>
+      <ScrollView contentContainerStyle={styles.scrollContent}>
+        
+        <Text style={styles.logoText}>BQ</Text>
+        <Text style={styles.title}>Mis hábitos</Text>
+        <Text style={styles.subtitle}>Pequeños pasos que hacen la diferencia.</Text>
 
-      <ScrollView
-        style={{ flex: 1 }}
-        contentContainerStyle={styles.content}
-      >
-
-        <Text style={styles.title}>Mis hábitos 🌱</Text>
-
-        <Text style={styles.subtitle}>
-          Pequeños pasos que hacen la diferencia.
-        </Text>
-
-        <View
-          style={{
-            backgroundColor: '#EBE5DA',
-            padding: 16,
-            borderRadius: 18,
-            marginBottom: 18,
-          }}
-        >
-          <Text style={{ color: '#705849', fontSize: 14 }}>
-            Tus monedas acumuladas
-          </Text>
-
-          <Text
-            style={{
-              color: '#342F29',
-              fontSize: 26,
-              fontWeight: 'bold',
-              marginTop: 4,
-            }}
-          >
-            🪙 {monedas}
-          </Text>
+        <View style={styles.listContainer}>
+          {habits.length === 0 ? (
+            <Text style={styles.emptyText}>Aún no tienes hábitos.</Text>
+          ) : (
+            habits.map((habit: any) => (
+              // Al tocar la tarjeta, disparamos toggleHabit
+              <TouchableOpacity 
+                key={habit.id} 
+                style={styles.habitCard} 
+                onPress={() => dispatch(toggleHabit(habit.id))}
+              >
+                <Ionicons 
+                  name={habit.completed ? "checkmark-circle" : "ellipse-outline"} 
+                  size={24} 
+                  color={habit.completed ? "#9BAA91" : "#342F29"} 
+                />
+                <View style={styles.habitInfo}>
+                  <Text style={[styles.habitName, habit.completed && styles.habitCompleted]}>
+                    {habit.name}
+                  </Text>
+                  <Text style={styles.habitFreq}>Todos los días · +10 monedas</Text>
+                </View>
+              </TouchableOpacity>
+            ))
+          )}
         </View>
 
-        <View style={styles.summaryCard}>
-          <Text style={styles.summaryTitle}>
-            Tu progreso de hoy
-          </Text>
-
-          <Text style={styles.summaryText}>
-            {completados} de {habitos.length} hábitos completados
-          </Text>
-
-          <View style={styles.progressTrack}>
-            <View
-              style={[
-                styles.progressFill,
-                { width: `${porcentaje}%` },
-              ]}
-            />
-          </View>
-        </View>
-
-        {habitos.length === 0 ? (
-          <Text style={{ color: '#705849', marginVertical: 20 }}>
-            Todavía no tienes hábitos. ¡Agrega el primero!
-          </Text>
-        ) : (
-          habitos.map(habito => (
-            <TouchableOpacity
-              key={habito.id}
-              style={styles.habitCard}
-              onPress={() =>
-                dispatch(cambiarEstadoHabito(habito.id))
-              }
-              activeOpacity={0.8}
-            >
-              <Ionicons
-                name={
-                  habito.completado
-                    ? 'checkmark-circle'
-                    : 'ellipse-outline'
-                }
-                size={26}
-                color={
-                  habito.completado ? '#9BAA91' : '#705849'
-                }
-              />
-
-              <View style={styles.habitInfo}>
-                <Text
-                  style={[
-                    styles.habitName,
-                    habito.completado && styles.completedText,
-                  ]}
-                >
-                  {habito.nombre}
-                </Text>
-
-                <Text style={styles.habitReward}>
-                  {habito.frecuencia} · +10 monedas
-                </Text>
-              </View>
-            </TouchableOpacity>
-          ))
-        )}
-
-        <TouchableOpacity
-          style={styles.addButton}
-          onPress={() => router.push('/create-habit')}
-          activeOpacity={0.8}
-        >
-          <Ionicons
-            name="add-circle-outline"
-            size={22}
-            color="#FFFFFF"
-          />
-
-          <Text style={styles.addButtonText}>
-            Agregar un hábito
-          </Text>
+        <TouchableOpacity style={styles.addButton} onPress={() => router.push('/create-habit')}>
+          <Text style={styles.addButtonText}>Agregar un hábito</Text>
         </TouchableOpacity>
 
       </ScrollView>
-
       <BottomNav />
-
     </SafeAreaView>
   );
 }
+
+const styles = StyleSheet.create({
+  container: { flex: 1, backgroundColor: '#F8F5EF' },
+  scrollContent: { padding: 20, paddingBottom: 40 },
+  logoText: { fontSize: 32, fontWeight: 'bold', color: '#342F29', marginBottom: 10 },
+  title: { fontSize: 24, fontWeight: 'bold', color: '#342F29' },
+  subtitle: { fontSize: 14, color: '#705849', marginTop: 5, marginBottom: 20 },
+  listContainer: { marginBottom: 20 },
+  emptyText: { color: '#705849', fontStyle: 'italic' },
+  habitCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#FFFFFF',
+    padding: 15,
+    borderRadius: 10,
+    marginBottom: 10,
+    borderWidth: 1,
+    borderColor: '#EBE5DA',
+  },
+  habitInfo: { marginLeft: 15, flex: 1 },
+  habitName: { fontSize: 16, fontWeight: 'bold', color: '#342F29' },
+  habitCompleted: { textDecorationLine: 'line-through', color: '#9BAA91' }, // Tachado cuando se completa
+  habitFreq: { fontSize: 12, color: '#9BAA91', marginTop: 4 },
+  addButton: {
+    backgroundColor: '#705849',
+    padding: 15,
+    borderRadius: 10,
+    alignItems: 'center',
+  },
+  addButtonText: { color: '#F8F5EF', fontSize: 16, fontWeight: 'bold' },
+});

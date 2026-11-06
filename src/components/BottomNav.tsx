@@ -1,16 +1,16 @@
 import { Ionicons } from '@expo/vector-icons';
 import { router, usePathname } from 'expo-router';
-import { StyleSheet, TouchableOpacity, View } from 'react-native';
+import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
 export default function BottomNav() {
   const pathname = usePathname();
 
   const tabs = [
-    { name: 'Inicio', icon: 'home', route: '/home' },
-    { name: 'Hábitos', icon: 'list', route: '/habits' },
-    { name: 'Explorar', icon: 'compass', route: '/explore' },
-    { name: 'Jardín', icon: 'leaf', route: '/garden' },
-    { name: 'Perfil', icon: 'person', route: '/profile' },
+    { name: 'Inicio', icon: 'home-outline', route: '/home' },
+    { name: 'Hábitos', icon: 'checkmark-circle-outline', route: '/habits' },
+    { name: 'Explorar', icon: 'compass-outline', route: '/explore' },
+    { name: 'Jardín', icon: 'leaf-outline', route: '/garden' },
+    { name: 'Perfil', icon: 'person-outline', route: '/profile' },
   ];
 
   return (
@@ -25,9 +25,12 @@ export default function BottomNav() {
           >
             <Ionicons
               name={tab.icon as any}
-              size={26}
-              color={isActive ? '#342F29' : '#9BAA91'} // Espresso si está activo, Verde Salvia si no
+              size={24}
+              color={isActive ? '#342F29' : '#9BAA91'} // Espresso vs Verde Salvia
             />
+            <Text style={[styles.tabText, { color: isActive ? '#342F29' : '#9BAA91' }]}>
+              {tab.name}
+            </Text>
           </TouchableOpacity>
         );
       })}
@@ -41,11 +44,19 @@ const styles = StyleSheet.create({
     justifyContent: 'space-around',
     alignItems: 'center',
     backgroundColor: '#F8F5EF', // Marfil
-    paddingVertical: 12,
+    paddingVertical: 10,
     borderTopWidth: 1,
     borderTopColor: '#EBE5DA', // Arena
+    paddingBottom: 25, // Para que no choque con el borde del celular
   },
   tab: {
-    padding: 8,
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 5,
+  },
+  tabText: {
+    fontSize: 12,
+    marginTop: 4,
+    fontWeight: '500',
   },
 });

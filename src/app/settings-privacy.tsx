@@ -1,5 +1,5 @@
 import { Ionicons } from '@expo/vector-icons';
-import { router } from 'expo-router';
+import { router } from 'expo-router'; // <-- ESTA ES LA CORRECTA
 import { SafeAreaView, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import BackButton from '../components/BackButton';
 
@@ -60,7 +60,6 @@ const styles = StyleSheet.create({
   logoText: { fontSize: 32, fontWeight: 'bold', color: '#342F29', marginBottom: 10 },
   title: { fontSize: 24, fontWeight: 'bold', color: '#342F29' },
   subtitle: { fontSize: 14, color: '#705849', marginTop: 5, marginBottom: 25 },
-  
   menuContainer: { marginBottom: 30 },
   menuItem: {
     flexDirection: 'row',

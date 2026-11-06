@@ -30,6 +30,8 @@ export default function RootLayout() {
           <Stack.Screen name="settings-help" /> 
           <Stack.Screen name="settings-personal-data" /> 
           <Stack.Screen name="settings-accessibility" /> 
+          <Stack.Screen name="settings-faq" />     
+          <Stack.Screen name="settings-contact" />
           <Stack.Screen name="achievements" />
           <Stack.Screen name="stats" />
           <Stack.Screen name="mood" />

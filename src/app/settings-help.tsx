@@ -1,4 +1,5 @@
 import { Ionicons } from '@expo/vector-icons';
+import { router } from 'expo-router';
 import { SafeAreaView, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import BackButton from '../components/BackButton';
 
@@ -15,7 +16,7 @@ export default function HelpSettingsScreen() {
         <Text style={styles.subtitle}>Estamos aquí para orientarte.</Text>
 
         <View style={styles.menuContainer}>
-          <TouchableOpacity style={styles.menuItem}>
+          <TouchableOpacity style={styles.menuItem} onPress={() => router.push('/settings-faq')}>
             <View>
               <Text style={styles.menuTitle}>Preguntas frecuentes</Text>
               <Text style={styles.menuSubtitle}>Respuestas sobre BloomQuest</Text>
@@ -39,10 +40,10 @@ export default function HelpSettingsScreen() {
             <Ionicons name="chevron-forward" size={20} color="#9BAA91" />
           </TouchableOpacity>
 
-          <TouchableOpacity style={styles.menuItem}>
+          <TouchableOpacity style={styles.menuItem} onPress={() => router.push('/settings-contact')}>
             <View>
               <Text style={styles.menuTitle}>Contacto y soporte</Text>
-              <Text style={styles.menuSubtitle}>Formulario de ayuda simulado</Text>
+              <Text style={styles.menuSubtitle}>Formulario de ayuda</Text>
             </View>
             <Ionicons name="chevron-forward" size={20} color="#9BAA91" />
           </TouchableOpacity>
@@ -59,7 +60,6 @@ const styles = StyleSheet.create({
   logoText: { fontSize: 32, fontWeight: 'bold', color: '#342F29', marginBottom: 10 },
   title: { fontSize: 24, fontWeight: 'bold', color: '#342F29' },
   subtitle: { fontSize: 14, color: '#705849', marginTop: 5, marginBottom: 25 },
-  
   menuContainer: { marginBottom: 30 },
   menuItem: {
     flexDirection: 'row',

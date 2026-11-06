@@ -25,10 +25,12 @@ export default function SettingsScreen() {
         <Text style={styles.subtitle}>Personaliza tu experiencia</Text>
 
         <View style={styles.menuContainer}>
-          <TouchableOpacity style={styles.menuItem} onPress={() => showComingSoon('Notificaciones')}>
+          {/* ESTE BOTÓN YA FUNCIONA Y TE LLEVA A LA NUEVA PANTALLA */}
+          <TouchableOpacity style={styles.menuItem} onPress={() => router.push('/settings-notifications')}>
             <Text style={styles.menuText}>Notificaciones</Text>
           </TouchableOpacity>
 
+          {/* ESTOS TRES SIGUEN MOSTRANDO EL MENSAJITO */}
           <TouchableOpacity style={styles.menuItem} onPress={() => showComingSoon('Privacidad')}>
             <Text style={styles.menuText}>Privacidad</Text>
           </TouchableOpacity>

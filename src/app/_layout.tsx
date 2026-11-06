@@ -25,6 +25,7 @@ export default function RootLayout() {
           <Stack.Screen name="tip-detail" />
           <Stack.Screen name="profile" />
           <Stack.Screen name="settings" />
+          <Stack.Screen name="settings-notifications" /> 
           <Stack.Screen name="achievements" />
           <Stack.Screen name="stats" />
           <Stack.Screen name="mood" />

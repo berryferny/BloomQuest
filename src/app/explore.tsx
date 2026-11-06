@@ -115,6 +115,25 @@ export default function ExploreScreen() {
 
           <Ionicons name="chevron-forward" size={21} color="#9BAA91" />
         </TouchableOpacity>
+                {/* NUEVA TARJETA: CONSEJOS PARA TI */}
+        <TouchableOpacity
+          style={styles.card}
+          onPress={() => router.push('/tips')}
+          activeOpacity={0.8}
+        >
+          <View style={styles.iconCircle}>
+            <Ionicons name="bulb" size={25} color="#705849" />
+          </View>
+
+          <View style={styles.cardInfo}>
+            <Text style={styles.cardTitle}>Consejos para ti</Text>
+            <Text style={styles.cardText}>
+              Ideas sencillas para florecer.
+            </Text>
+          </View>
+
+          <Ionicons name="chevron-forward" size={21} color="#9BAA91" />
+        </TouchableOpacity>
 
         <View style={styles.comingSoon}>
           <Ionicons name="sparkles-outline" size={24} color="#705849" />

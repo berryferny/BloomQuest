@@ -1,16 +1,8 @@
 import { router } from 'expo-router';
-import { useState } from 'react';
 import { SafeAreaView, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import BackButton from '../components/BackButton';
 
 export default function SettingsScreen() {
-  const [toastMessage, setToastMessage] = useState<string | null>(null);
-
-  const showComingSoon = () => {
-    setToastMessage(`La sección de Accesibilidad estará disponible pronto.`);
-    setTimeout(() => setToastMessage(null), 2500);
-  };
-
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
@@ -31,7 +23,7 @@ export default function SettingsScreen() {
             <Text style={styles.menuText}>Privacidad</Text>
           </TouchableOpacity>
 
-          <TouchableOpacity style={styles.menuItem} onPress={showComingSoon}>
+          <TouchableOpacity style={styles.menuItem} onPress={() => router.push('/settings-accessibility')}>
             <Text style={styles.menuText}>Accesibilidad</Text>
           </TouchableOpacity>
 
@@ -44,12 +36,6 @@ export default function SettingsScreen() {
           <Text style={styles.backButtonText}>Volver al perfil</Text>
         </TouchableOpacity>
       </ScrollView>
-
-      {toastMessage && (
-        <View style={styles.toastContainer}>
-          <Text style={styles.toastText}>{toastMessage}</Text>
-        </View>
-      )}
     </SafeAreaView>
   );
 }
@@ -79,15 +65,4 @@ const styles = StyleSheet.create({
     marginTop: 10,
   },
   backButtonText: { color: '#F8F5EF', fontSize: 16, fontWeight: 'bold' },
-  toastContainer: {
-    position: 'absolute',
-    bottom: 30,
-    alignSelf: 'center',
-    backgroundColor: '#342F29',
-    paddingVertical: 12,
-    paddingHorizontal: 24,
-    borderRadius: 30,
-    elevation: 5,
-  },
-  toastText: { color: '#F8F5EF', fontSize: 14, fontWeight: '500' },
 });

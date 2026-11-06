@@ -9,11 +9,13 @@ interface Habit {
 interface HabitsState {
   habits: Habit[];
   coins: number;
+  inventory: string[]; 
 }
 
 const initialState: HabitsState = {
   habits: [],
-  coins: 0, // Empezamos con 0 monedas
+  coins: 0,
+  inventory: [],
 };
 
 const habitsSlice = createSlice({
@@ -28,14 +30,20 @@ const habitsSlice = createSlice({
       if (habit) {
         habit.completed = !habit.completed;
         if (habit.completed) {
-          state.coins += 10; // +10 monedas al completar
+          state.coins += 10;
         } else {
-          state.coins -= 10; // -10 monedas al desmarcar
+          state.coins -= 10;
         }
+      }
+    },
+    buyItem: (state, action: PayloadAction<{ item: string; price: number }>) => {
+      if (state.coins >= action.payload.price) {
+        state.coins -= action.payload.price;
+        state.inventory.push(action.payload.item);
       }
     },
   },
 });
 
-export const { addHabit, toggleHabit } = habitsSlice.actions;
+export const { addHabit, toggleHabit, buyItem } = habitsSlice.actions;
 export default habitsSlice.reducer;

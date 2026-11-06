@@ -4,7 +4,6 @@ import { Provider } from 'react-redux';
 import { PersistGate } from 'redux-persist/integration/react';
 import { persistor, store } from '../store';
 
-// Truco para que TypeScript no se queje con redux-persist
 const PersistGateComponent = PersistGate as any;
 
 export default function RootLayout() {
@@ -21,6 +20,7 @@ export default function RootLayout() {
           <Stack.Screen name="explore" />
           <Stack.Screen name="garden" />
           <Stack.Screen name="profile" />
+          <Stack.Screen name="shop" /> 
         </Stack>
       </PersistGateComponent>
     </Provider>

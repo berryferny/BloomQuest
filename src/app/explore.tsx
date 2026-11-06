@@ -153,6 +153,25 @@ export default function ExploreScreen() {
 
           <Ionicons name="chevron-forward" size={21} color="#9BAA91" />
         </TouchableOpacity>
+                {/* NUEVA TARJETA: ZONA DE JUEGOS */}
+        <TouchableOpacity
+          style={styles.card}
+          onPress={() => router.push('/games')}
+          activeOpacity={0.8}
+        >
+          <View style={styles.iconCircle}>
+            <Ionicons name="game-controller" size={25} color="#705849" />
+          </View>
+
+          <View style={styles.cardInfo}>
+            <Text style={styles.cardTitle}>Zona de juegos</Text>
+            <Text style={styles.cardText}>
+              Aprende, juega y consigue monedas.
+            </Text>
+          </View>
+
+          <Ionicons name="chevron-forward" size={21} color="#9BAA91" />
+        </TouchableOpacity>
 
         <View style={styles.comingSoon}>
           <Ionicons name="sparkles-outline" size={24} color="#705849" />

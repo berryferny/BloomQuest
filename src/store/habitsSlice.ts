@@ -35,6 +35,7 @@ const habitsSlice = createSlice({
     addHabit: (state, action: PayloadAction<{ id: string; name: string; completed: boolean }>) => {
       state.habits.push(action.payload);
     },
+    
     toggleHabit: (state, action: PayloadAction<string>) => {
       const habit = state.habits.find((h) => h.id === action.payload);
       if (habit) {
@@ -69,8 +70,11 @@ const habitsSlice = createSlice({
       // Lo ponemos al principio para que lo más reciente salga primero
       state.moodHistory.unshift(newEntry);
     },
+    addCoins: (state, action: PayloadAction<number>) => {
+      state.coins += action.payload;
+    },
   },
 });
 
-export const { addHabit, toggleHabit, buyItem, completeMission, addMood } = habitsSlice.actions;
+export const { addHabit, toggleHabit, buyItem, completeMission, addMood, addCoins } = habitsSlice.actions;
 export default habitsSlice.reducer;

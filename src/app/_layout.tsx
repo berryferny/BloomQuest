@@ -14,6 +14,9 @@ export default function RootLayout() {
         <Stack screenOptions={{ headerShown: false }}>
           <Stack.Screen name="index" />
           <Stack.Screen name="login" />
+          <Stack.Screen name="register" />          
+          <Stack.Screen name="recover-password" />  
+          <Stack.Screen name="settings-delete-account" /> 
           <Stack.Screen name="home" />
           <Stack.Screen name="habits" />
           <Stack.Screen name="create-habit" />

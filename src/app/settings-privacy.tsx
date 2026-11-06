@@ -40,7 +40,7 @@ export default function PrivacySettingsScreen() {
             <Ionicons name="chevron-forward" size={20} color="#9BAA91" />
           </TouchableOpacity>
 
-          <TouchableOpacity style={styles.menuItem}>
+          <TouchableOpacity style={styles.menuItem} onPress={() => router.push('/settings-delete-account')}>
             <View>
               <Text style={[styles.menuTitle, { color: '#C0392B' }]}>Eliminar mi cuenta</Text>
               <Text style={styles.menuSubtitle}>Acción de ejemplo, sin eliminación real</Text>

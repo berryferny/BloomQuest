@@ -49,9 +49,13 @@ export default function LoginScreen() {
             <TouchableOpacity style={styles.button} onPress={handleLogin}>
               <Text style={styles.buttonText}>Iniciar sesión</Text>
             </TouchableOpacity>
-
-            <TouchableOpacity style={styles.linkButton}>
+            
+            <TouchableOpacity style={styles.linkButton} onPress={() => router.push('/register')}>
               <Text style={styles.linkText}>¿No tienes cuenta? Regístrate</Text>
+            </TouchableOpacity>
+            
+            <TouchableOpacity style={styles.linkButton} onPress={() => router.push('/recover-password')}>
+              <Text style={styles.linkText}>¿Olvidaste tu contraseña?</Text>
             </TouchableOpacity>
           </View>
 

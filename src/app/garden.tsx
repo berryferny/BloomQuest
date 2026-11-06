@@ -5,10 +5,8 @@ import { useDispatch, useSelector } from 'react-redux';
 import BottomNav from '../components/BottomNav';
 import { plantSeed, waterPlant } from '../store/habitsSlice';
 
-// Configuración de las semillas y las imágenes
 const SEED_DATA: any = {
   'Semilla de Tulipán': { maxStage: 3, img: require('../../assets/images/plants/tulip.png') },
-  // Aquí agregarás las demás flores cuando tengas sus imágenes
 };
 
 export default function GardenScreen() {
@@ -16,7 +14,6 @@ export default function GardenScreen() {
   const dispatch = useDispatch();
 
   const safeGarden = (garden && garden.length > 0) ? garden : [null, null, null, null, null, null];
-
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedSlot, setSelectedSlot] = useState<number | null>(null);
 
@@ -28,7 +25,6 @@ export default function GardenScreen() {
   const handlePlant = (seedType: string) => {
     if (selectedSlot !== null) {
       const data = SEED_DATA[seedType];
-      // Enviamos 'emoji' como respaldo por si la imagen falla
       dispatch(plantSeed({ index: selectedSlot, type: seedType, maxStage: data.maxStage, emoji: '🌸' })); 
       setModalVisible(false);
     }
@@ -43,7 +39,6 @@ export default function GardenScreen() {
       <SafeAreaView style={styles.container}>
         <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
           
-          {/* HUD Superior (Monedas y Título) */}
           <View style={styles.topHud}>
             <Text style={styles.title}>Mi Jardín</Text>
             <View style={styles.coinsBadge}>
@@ -54,61 +49,59 @@ export default function GardenScreen() {
           {/* El Huerto */}
           <View style={styles.gardenGrid}>
             {safeGarden.map((plant: any, index: number) => {
-              // Escala de la planta (crece un poco en cada etapa)
-              const plantScale = plant && !plant.isBloomed ? 0.6 + (plant.stage * 0.2) : 1.1;
+              // La planta crece un poquito según su etapa
+              const plantScale = plant && !plant.isBloomed ? 0.7 + (plant.stage * 0.15) : 1;
 
               return (
-                <TouchableOpacity 
-                  key={index} 
-                  style={styles.plot} 
-                  onPress={() => plant ? handleWater(index) : openPlantModal(index)}
-                  activeOpacity={plant?.isBloomed ? 1 : 0.8}
-                >
-                  {/* 1. La base de tierra (siempre visible) */}
-                  <Image 
-                    source={require('../../assets/images/plants/soil.png')} 
-                    style={styles.soilImage} 
-                    resizeMode="contain"
-                  />
+                <View key={index} style={styles.plotContainer}>
+                  <TouchableOpacity 
+                    style={styles.plot} 
+                    onPress={() => plant ? handleWater(index) : openPlantModal(index)}
+                    activeOpacity={0.9}
+                  >
+                    {/* 1. La base de tierra (contenida en su caja) */}
+                    <Image 
+                      source={require('../../assets/images/plants/soil.png')} 
+                      style={styles.soilImage} 
+                      resizeMode="contain"
+                    />
 
-                  {/* 2. La planta encima de la tierra */}
-                  {plant && (
-                    <View style={[styles.plantOverlay, { transform: [{ scale: plantScale }] }]}>
-                      <Image 
-                        source={
-                          plant.isBloomed 
-                            ? SEED_DATA[plant.type].img 
-                            : require('../../assets/images/plants/sprout.png')
-                        } 
-                        style={styles.plantImage}
-                        resizeMode="contain"
-                      />
-                    </View>
-                  )}
+                    {/* 2. La planta encima de la tierra */}
+                    {plant && (
+                      <View style={[styles.plantOverlay, { transform: [{ scale: plantScale }] }]}>
+                        <Image 
+                          source={
+                            plant.isBloomed 
+                              ? SEED_DATA[plant.type].img 
+                              : require('../../assets/images/plants/sprout.png')
+                          } 
+                          style={styles.plantImage}
+                          resizeMode="contain"
+                        />
+                      </View>
+                    )}
 
-                  {/* Indicador de agua (burbuja con emoji) */}
-                  {plant && !plant.isBloomed && (
-                    <View style={styles.waterIndicator}>
-                      <Text style={styles.waterText}>💧</Text>
-                    </View>
-                  )}
-                </TouchableOpacity>
+                    {/* Indicador de agua */}
+                    {plant && !plant.isBloomed && (
+                      <View style={styles.waterIndicator}>
+                        <Text style={styles.waterText}>💧</Text>
+                      </View>
+                    )}
+                  </TouchableOpacity>
+                </View>
               );
             })}
           </View>
 
         </ScrollView>
 
-        {/* Barra de Herramientas Flotante */}
         <View style={styles.toolbar}>
           <TouchableOpacity style={styles.toolButton} onPress={() => router.push('/shop')}>
             <Text style={styles.toolIcon}>🛒</Text>
           </TouchableOpacity>
-          
           <TouchableOpacity style={styles.toolButton}>
             <Text style={styles.toolIcon}>💧</Text>
           </TouchableOpacity>
-          
           <TouchableOpacity style={styles.toolButton} onPress={() => setModalVisible(true)}>
             <Text style={styles.toolIcon}>🌱</Text>
           </TouchableOpacity>
@@ -116,7 +109,6 @@ export default function GardenScreen() {
 
         <BottomNav />
 
-        {/* MODAL PARA ELEGIR SEMILLA */}
         <Modal visible={modalVisible} transparent animationType="slide">
           <View style={styles.modalOverlay}>
             <View style={styles.modalContent}>
@@ -158,10 +150,14 @@ const styles = StyleSheet.create({
     flexWrap: 'wrap',
     justifyContent: 'space-between',
   },
+  // Esta caja evita que la imagen de la tierra se haga gigante
+  plotContainer: {
+    width: '48%',
+    aspectRatio: 1, // Mantiene la proporción cuadrada
+    marginBottom: 15,
+  },
   plot: {
-    width: '48%', 
-    aspectRatio: 1,
-    marginBottom: 20,
+    flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -169,25 +165,22 @@ const styles = StyleSheet.create({
     width: '100%',
     height: '100%',
     position: 'absolute',
-    bottom: 0,
   },
-  
   plantOverlay: {
     position: 'absolute',
-    bottom: '25%', 
+    bottom: '15%', // Para que la planta parezca salir de la tierra
     width: '100%',
     height: '100%',
     justifyContent: 'center',
     alignItems: 'center',
   },
   plantImage: {
-    width: '80%',
-    height: '80%',
+    width: '60%',
+    height: '60%',
   },
-
   waterIndicator: {
     position: 'absolute',
-    top: '20%',
+    top: '10%',
     right: '10%',
     backgroundColor: '#FFFFFF',
     borderRadius: 20,

@@ -5,8 +5,20 @@ import { useDispatch, useSelector } from 'react-redux';
 import BottomNav from '../components/BottomNav';
 import { plantSeed, waterPlant } from '../store/habitsSlice';
 
+// Configuración de las semillas con las imágenes ACTIVADAS
 const SEED_DATA: any = {
-  'Semilla de Tulipán': { maxStage: 3, img: require('../../assets/images/plants/tulip.png') },
+  'Semilla de Tulipán': { 
+    maxStage: 3, 
+    img: require('../../assets/images/plants/tulip.png') 
+  },
+  'Semilla de Girasol': { 
+    maxStage: 4, 
+    img: require('../../assets/images/plants/sunflower.png') 
+  },
+  'Semilla de Rosa': { 
+    maxStage: 5, 
+    img: require('../../assets/images/plants/rose.png') 
+  },
 };
 
 export default function GardenScreen() {
@@ -25,12 +37,19 @@ export default function GardenScreen() {
   const handlePlant = (seedType: string) => {
     if (selectedSlot !== null) {
       const data = SEED_DATA[seedType];
-      dispatch(plantSeed({ index: selectedSlot, type: seedType, maxStage: data.maxStage, emoji: '🌸' })); 
+      const maxStage = data?.maxStage || 3;
+      
+      // Mandamos el emoji de respaldo, pero la imagen es la que se verá
+      dispatch(plantSeed({ index: selectedSlot, type: seedType, maxStage, emoji: '🌸' })); 
       setModalVisible(false);
     }
   };
 
-  const handleWater = (index: number) => {
+  const handleWater = (index: number, plant: any) => {
+    const today = new Date().toDateString();
+    if (plant.lastWateredDate === today) {
+      return; // Ya se regó hoy
+    }
     dispatch(waterPlant(index)); 
   };
 
@@ -46,33 +65,34 @@ export default function GardenScreen() {
             </View>
           </View>
 
-          {/* El Huerto */}
           <View style={styles.gardenGrid}>
             {safeGarden.map((plant: any, index: number) => {
-              // La planta crece un poquito según su etapa
+              // La planta crece un poco en cada etapa
               const plantScale = plant && !plant.isBloomed ? 0.7 + (plant.stage * 0.15) : 1;
+              const today = new Date().toDateString();
+              const isWateredToday = plant?.lastWateredDate === today;
 
               return (
                 <View key={index} style={styles.plotContainer}>
                   <TouchableOpacity 
                     style={styles.plot} 
-                    onPress={() => plant ? handleWater(index) : openPlantModal(index)}
+                    onPress={() => plant ? handleWater(index, plant) : openPlantModal(index)}
                     activeOpacity={0.9}
                   >
-                    {/* 1. La base de tierra (contenida en su caja) */}
+                    {/* Base de tierra */}
                     <Image 
                       source={require('../../assets/images/plants/soil.png')} 
                       style={styles.soilImage} 
                       resizeMode="contain"
                     />
 
-                    {/* 2. La planta encima de la tierra */}
+                    {/* La planta (Brote o Flor final) */}
                     {plant && (
                       <View style={[styles.plantOverlay, { transform: [{ scale: plantScale }] }]}>
                         <Image 
                           source={
                             plant.isBloomed 
-                              ? SEED_DATA[plant.type].img 
+                              ? SEED_DATA[plant.type]?.img 
                               : require('../../assets/images/plants/sprout.png')
                           } 
                           style={styles.plantImage}
@@ -83,9 +103,15 @@ export default function GardenScreen() {
 
                     {/* Indicador de agua */}
                     {plant && !plant.isBloomed && (
-                      <View style={styles.waterIndicator}>
-                        <Text style={styles.waterText}>💧</Text>
-                      </View>
+                      isWateredToday ? (
+                        <View style={styles.wateredIndicator}>
+                          <Text style={styles.wateredText}>Regada hoy</Text>
+                        </View>
+                      ) : (
+                        <View style={styles.waterIndicator}>
+                          <Text style={styles.waterText}>💧</Text>
+                        </View>
+                      )
                     )}
                   </TouchableOpacity>
                 </View>
@@ -118,7 +144,12 @@ export default function GardenScreen() {
               ) : (
                 [...new Set(seedInventory)].map((seedType: any) => (
                   <TouchableOpacity key={seedType} style={styles.seedItem} onPress={() => handlePlant(seedType)}>
-                    <Text style={styles.seedEmoji}>🌷</Text>
+                    {/* Mostramos el iconito de la semilla en el modal */}
+                    <Image 
+                      source={SEED_DATA[seedType]?.img} 
+                      style={{ width: 30, height: 30, marginRight: 15 }} 
+                      resizeMode="contain"
+                    />
                     <Text style={styles.seedText}>{seedType}</Text>
                   </TouchableOpacity>
                 ))
@@ -145,71 +176,22 @@ const styles = StyleSheet.create({
   coinsBadge: { backgroundColor: '#F8F5EF', paddingHorizontal: 15, paddingVertical: 8, borderRadius: 20, borderWidth: 2, borderColor: '#705849', shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.3, elevation: 4 },
   coinsText: { fontSize: 16, fontWeight: 'bold', color: '#342F29' },
 
-  gardenGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'space-between',
-  },
-  // Esta caja evita que la imagen de la tierra se haga gigante
-  plotContainer: {
-    width: '48%',
-    aspectRatio: 1, // Mantiene la proporción cuadrada
-    marginBottom: 15,
-  },
-  plot: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  soilImage: {
-    width: '100%',
-    height: '100%',
-    position: 'absolute',
-  },
-  plantOverlay: {
-    position: 'absolute',
-    bottom: '15%', // Para que la planta parezca salir de la tierra
-    width: '100%',
-    height: '100%',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  plantImage: {
-    width: '60%',
-    height: '60%',
-  },
-  waterIndicator: {
-    position: 'absolute',
-    top: '10%',
-    right: '10%',
-    backgroundColor: '#FFFFFF',
-    borderRadius: 20,
-    padding: 5,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.2,
-    elevation: 3,
-  },
+  gardenGrid: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between' },
+  plotContainer: { width: '48%', aspectRatio: 1, marginBottom: 15 },
+  plot: { flex: 1, justifyContent: 'center', alignItems: 'center' },
+  soilImage: { width: '100%', height: '100%', position: 'absolute' },
+  
+  // Hice la planta un poquito más grande (85%) para que se vea bien sobre la tierra
+  plantOverlay: { position: 'absolute', bottom: '15%', width: '100%', height: '100%', justifyContent: 'center', alignItems: 'center' },
+  plantImage: { width: '85%', height: '85%' },
+  
+  waterIndicator: { position: 'absolute', top: '10%', right: '10%', backgroundColor: '#FFFFFF', borderRadius: 20, padding: 5, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.2, elevation: 3 },
   waterText: { fontSize: 16 },
+  
+  wateredIndicator: { position: 'absolute', top: '5%', right: '5%', backgroundColor: '#EBE5DA', borderRadius: 10, paddingHorizontal: 8, paddingVertical: 4, borderWidth: 1, borderColor: '#D3C9BD' },
+  wateredText: { fontSize: 10, fontWeight: 'bold', color: '#705849' },
 
-  toolbar: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    alignItems: 'center',
-    backgroundColor: '#F8F5EF',
-    paddingVertical: 12,
-    borderRadius: 30,
-    borderWidth: 3,
-    borderColor: '#D3C9BD',
-    position: 'absolute',
-    bottom: 85, 
-    width: '80%',
-    alignSelf: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 5 },
-    shadowOpacity: 0.3,
-    elevation: 8,
-  },
+  toolbar: { flexDirection: 'row', justifyContent: 'space-around', alignItems: 'center', backgroundColor: '#F8F5EF', paddingVertical: 12, borderRadius: 30, borderWidth: 3, borderColor: '#D3C9BD', position: 'absolute', bottom: 85, width: '80%', alignSelf: 'center', shadowColor: '#000', shadowOffset: { width: 0, height: 5 }, shadowOpacity: 0.3, elevation: 8 },
   toolButton: { alignItems: 'center', justifyContent: 'center' },
   toolIcon: { fontSize: 30 },
 
@@ -218,7 +200,6 @@ const styles = StyleSheet.create({
   modalTitle: { fontSize: 22, fontWeight: 'bold', color: '#342F29', marginBottom: 20, textAlign: 'center' },
   emptyText: { fontSize: 16, color: '#705849', textAlign: 'center', marginBottom: 20 },
   seedItem: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#FFFFFF', padding: 15, borderRadius: 15, marginBottom: 10, borderWidth: 2, borderColor: '#EBE5DA' },
-  seedEmoji: { fontSize: 28, marginRight: 15 },
   seedText: { fontSize: 16, fontWeight: 'bold', color: '#342F29' },
   closeButton: { marginTop: 10, padding: 15, backgroundColor: '#EBE5DA', borderRadius: 10, alignItems: 'center' },
   closeButtonText: { color: '#705849', fontSize: 16, fontWeight: 'bold' },

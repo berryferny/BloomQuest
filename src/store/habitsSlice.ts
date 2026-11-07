@@ -10,6 +10,7 @@ export interface Plant {
   stage: number;
   maxStage: number;
   isBloomed: boolean;
+  lastWateredDate?: string; // <-- NUEVO: Guarda el día del último riego
 }
 
 interface HabitsState {
@@ -27,9 +28,9 @@ interface HabitsState {
 
 const initialState: HabitsState = {
   habits: [],
-  coins: 100, // Monedas iniciales de regalo
+  coins: 100, 
   seedInventory: [],
-  garden: [null, null, null, null, null, null], // 6 macetas
+  garden: [null, null, null, null, null, null], 
   completedMissions: [],
   moodHistory: [],
   streak: 0,
@@ -82,18 +83,26 @@ const habitsSlice = createSlice({
           stage: 0,
           maxStage: action.payload.maxStage,
           isBloomed: false,
+          lastWateredDate: undefined, // Aún no se ha regado
         };
       }
     },
     waterPlant: (state, action: PayloadAction<number>) => {
       if (!state.garden) state.garden = [null, null, null, null, null, null];
       const plant = state.garden[action.payload];
+      
       if (plant && !plant.isBloomed) {
-        plant.stage += 1;
-        // Si llega a la etapa máxima, florece y te da 10 monedas de recompensa
-        if (plant.stage >= plant.maxStage) {
-          plant.isBloomed = true;
-          state.coins += 10; 
+        const today = new Date().toDateString();
+        
+        // LÓGICA DE REGADO DIARIO: Solo crece si no se ha regado hoy
+        if (plant.lastWateredDate !== today) {
+          plant.stage += 1;
+          plant.lastWateredDate = today; // Guardamos el día de hoy
+          
+          if (plant.stage >= plant.maxStage) {
+            plant.isBloomed = true;
+            state.coins += 10; 
+          }
         }
       }
     },

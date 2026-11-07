@@ -1,4 +1,5 @@
 import { Ionicons } from '@expo/vector-icons';
+import * as Haptics from 'expo-haptics'; // <-- IMPORTAMOS HAPTICS
 import { router } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { ActivityIndicator, SafeAreaView, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
@@ -12,7 +13,7 @@ export default function HomeScreen() {
   const { 
     habits = [], coins = 0, streak = 0, userName = 'Persona Bloom', 
     garden = [], seedInventory = [], lastLoginDate = null,
-    moodHistory = [], completedMissions = [], avatarUrl = null // <-- Agregado avatarUrl
+    moodHistory = [], completedMissions = [], avatarUrl = null
   } = useSelector((state: any) => state.habits);
   
   const dispatch = useDispatch();
@@ -35,12 +36,22 @@ export default function HomeScreen() {
     dispatch(resetHabitsDaily());
   }, [dispatch]);
 
-  // Sincronizamos con la nube incluyendo la foto
   useEffect(() => {
     if (coins !== undefined) {
       syncProfileToDb(coins, garden, seedInventory, streak, lastLoginDate, moodHistory, completedMissions, avatarUrl);
     }
   }, [coins, garden, seedInventory, streak, moodHistory, completedMissions, avatarUrl]);
+
+  // NUEVA FUNCIÓN CON VIBRACIÓN
+  const handleToggle = (id: string, isCompleted: boolean) => {
+    dispatch(toggleHabit(id));
+    // Si lo completó, vibra de forma "exitosa". Si lo desmarcó, vibra leve.
+    if (!isCompleted) {
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+    } else {
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    }
+  };
 
   if (isFetching) {
     return (
@@ -82,14 +93,23 @@ export default function HomeScreen() {
         </View>
 
         <Text style={styles.sectionTitle}>Tus hábitos</Text>
+        
+        {/* ESTADO VACÍO BONITO */}
         {habits.length === 0 ? (
-          <Text style={styles.emptyText}>No tienes hábitos aún.</Text>
+          <View style={styles.emptyStateContainer}>
+            <Ionicons name="leaf-outline" size={60} color="#9BAA91" />
+            <Text style={styles.emptyStateTitle}>Tu jardín está esperando</Text>
+            <Text style={styles.emptyStateText}>Crea tu primer hábito para empezar a florecer.</Text>
+            <TouchableOpacity style={styles.emptyStateButton} onPress={() => router.push('/create-habit')}>
+              <Text style={styles.emptyStateButtonText}>+ Crear mi primer hábito</Text>
+            </TouchableOpacity>
+          </View>
         ) : (
-          habits.slice(0, 3).map((habit: any) => (
+          habits.slice(0, 4).map((habit: any) => (
             <TouchableOpacity 
               key={habit.id} 
               style={styles.habitItem}
-              onPress={() => dispatch(toggleHabit(habit.id))}
+              onPress={() => handleToggle(habit.id, habit.completed)} // <-- Usamos la función con haptics
             >
               <Ionicons 
                 name={habit.completed ? "checkmark-circle" : "ellipse-outline"} 
@@ -102,10 +122,6 @@ export default function HomeScreen() {
             </TouchableOpacity>
           ))
         )}
-
-        <TouchableOpacity style={styles.createButton} onPress={() => router.push('/create-habit')}>
-          <Text style={styles.createButtonText}>+ Crear hábito</Text>
-        </TouchableOpacity>
 
       </ScrollView>
       <BottomNav />
@@ -130,10 +146,14 @@ const styles = StyleSheet.create({
   progressBarBackground: { height: 8, backgroundColor: '#D3C9BD', borderRadius: 4 },
   progressBarFill: { height: 8, backgroundColor: '#705849', borderRadius: 4 },
   sectionTitle: { fontSize: 18, fontWeight: 'bold', color: '#342F29', marginBottom: 15 },
-  emptyText: { color: '#705849', fontStyle: 'italic', marginBottom: 15 },
   habitItem: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#FFFFFF', padding: 15, borderRadius: 10, marginBottom: 10, borderWidth: 1, borderColor: '#EBE5DA' },
   habitText: { fontSize: 16, color: '#342F29', marginLeft: 15 },
   habitCompleted: { textDecorationLine: 'line-through', color: '#9BAA91' },
-  createButton: { backgroundColor: '#705849', padding: 15, borderRadius: 10, alignItems: 'center', marginTop: 10 },
-  createButtonText: { color: '#F8F5EF', fontSize: 16, fontWeight: 'bold' },
+  
+  // ESTILOS DEL ESTADO VACÍO
+  emptyStateContainer: { alignItems: 'center', justifyContent: 'center', paddingVertical: 40, paddingHorizontal: 20 },
+  emptyStateTitle: { fontSize: 20, fontWeight: 'bold', color: '#342F29', marginTop: 15, marginBottom: 5 },
+  emptyStateText: { fontSize: 14, color: '#705849', textAlign: 'center', marginBottom: 20 },
+  emptyStateButton: { backgroundColor: '#705849', paddingVertical: 12, paddingHorizontal: 25, borderRadius: 10 },
+  emptyStateButtonText: { color: '#F8F5EF', fontSize: 16, fontWeight: 'bold' },
 });

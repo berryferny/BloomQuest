@@ -1,7 +1,7 @@
 import { router } from 'expo-router';
 import { useState } from 'react';
 import { Image, ImageBackground, Modal, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context'; // <-- Importación correcta
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useDispatch, useSelector } from 'react-redux';
 import BottomNav from '../components/BottomNav';
 import BQLogo from '../components/BQLogo';
@@ -44,7 +44,7 @@ export default function GardenScreen() {
     <ImageBackground 
       source={require('../../assets/images/plants/grass_bg.png')} 
       style={styles.backgroundImage}
-      resizeMode="cover" // <-- AQUÍ ESTÁ LA MAGIA: Cover en lugar de repeat
+      resizeMode="cover" 
     >
       {/* edges={['top']} asegura que el logo y monedas no se suban a la barra de estado */}
       <SafeAreaView style={styles.container} edges={['top']}>

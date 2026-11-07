@@ -6,7 +6,6 @@ export default function StatsScreen() {
   const { habits = [], completedMissions = [], moodHistory = [] } = useSelector((state: any) => state.habits);
   const completedHabits = habits.filter((h: any) => h.completed).length;
 
-  // Contamos cuántas veces se repite cada emoción
   const moodCounts = {
     'Triste': 0, 'Estresada': 0, 'Cansada': 0, 'En calma': 0, 'Feliz': 0
   };
@@ -17,8 +16,8 @@ export default function StatsScreen() {
     }
   });
 
-  // Encontramos el valor máximo para calcular las alturas de las barras
   const maxCount = Math.max(...Object.values(moodCounts), 1);
+  const totalMoods = moodHistory.length;
 
   const moodData = [
     { label: 'Triste', emoji: '😢', count: moodCounts['Triste'], color: '#A8B5C4' },
@@ -38,21 +37,21 @@ export default function StatsScreen() {
         <Text style={styles.title}>Estadísticas</Text>
         <Text style={styles.subtitle}>Conoce tu evolución.</Text>
 
-        {/* Gráfica de Emociones Personalizada */}
         <View style={styles.chartContainer}>
           <Text style={styles.chartTitle}>Tu historial emocional</Text>
+          <Text style={styles.chartSubtitle}>Has registrado {totalMoods} emociones en total.</Text>
           
-          {moodHistory.length === 0 ? (
-            <Text style={styles.emptyText}>Registra algunas emociones para ver tu gráfica.</Text>
+          {totalMoods === 0 ? (
+            <Text style={styles.emptyText}>Registra emociones para ver tu gráfica.</Text>
           ) : (
             <View style={styles.chartArea}>
               {moodData.map((mood, index) => {
-                // Calculamos qué tan alto debe ser la barra (mínimo 10% para que se vea)
-                const barHeight = Math.max((mood.count / maxCount) * 120, 10); 
+                // Si es 0, la altura es 0 (desaparece la rayita). Si es mayor, crece.
+                const barHeight = mood.count > 0 ? Math.max((mood.count / maxCount) * 120, 15) : 0;
                 
                 return (
                   <View key={index} style={styles.barWrapper}>
-                    <Text style={styles.barCount}>{mood.count}</Text>
+                    <Text style={styles.barCount}>{mood.count > 0 ? mood.count : ''}</Text>
                     <View style={[styles.bar, { height: barHeight, backgroundColor: mood.color }]} />
                     <Text style={styles.barEmoji}>{mood.emoji}</Text>
                     <Text style={styles.barLabel}>{mood.label}</Text>
@@ -63,15 +62,14 @@ export default function StatsScreen() {
           )}
         </View>
 
-        {/* Tarjeta de Stats de Hábitos */}
         <View style={styles.statsCard}>
           <View style={styles.statRow}>
-            <Text style={styles.statLabel}>Hábitos completados</Text>
+            <Text style={styles.statLabel}>Hábitos completados hoy</Text>
             <Text style={styles.statValue}>{completedHabits}</Text>
           </View>
           <View style={styles.divider} />
           <View style={styles.statRow}>
-            <Text style={styles.statLabel}>Misiones realizadas</Text>
+            <Text style={styles.statLabel}>Misiones completadas hoy</Text>
             <Text style={styles.statValue}>{completedMissions.length}</Text>
           </View>
           <View style={styles.divider} />
@@ -94,15 +92,15 @@ const styles = StyleSheet.create({
   subtitle: { fontSize: 14, color: '#705849', marginTop: 5, marginBottom: 25 },
   
   chartContainer: { backgroundColor: '#FFFFFF', padding: 20, borderRadius: 15, marginBottom: 20, borderWidth: 1, borderColor: '#EBE5DA' },
-  chartTitle: { fontSize: 16, fontWeight: 'bold', color: '#342F29', marginBottom: 20 },
+  chartTitle: { fontSize: 16, fontWeight: 'bold', color: '#342F29' },
+  chartSubtitle: { fontSize: 12, color: '#9BAA91', marginBottom: 20, marginTop: 5 },
   emptyText: { color: '#705849', fontStyle: 'italic', paddingVertical: 20, textAlign: 'center' },
   
-  // Estilos de la gráfica de barras
-  chartArea: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-end', height: 180, paddingTop: 20 },
+  chartArea: { flexDirection: 'row', justifyContent: 'space-around', alignItems: 'flex-end', height: 180, paddingTop: 20 },
   barWrapper: { alignItems: 'center', width: '18%' },
-  barCount: { fontSize: 12, fontWeight: 'bold', color: '#705849', marginBottom: 5 },
-  bar: { width: '100%', borderRadius: 6, minHeight: 10 },
-  barEmoji: { fontSize: 18, marginTop: 5 },
+  barCount: { fontSize: 12, fontWeight: 'bold', color: '#705849', marginBottom: 5, height: 15 },
+  bar: { width: '50%', borderRadius: 6 }, // Barra más delgadita y bonita
+  barEmoji: { fontSize: 18, marginTop: 8 },
   barLabel: { fontSize: 10, color: '#705849', marginTop: 2, textAlign: 'center' },
 
   statsCard: { backgroundColor: '#EBE5DA', padding: 20, borderRadius: 15 },

@@ -35,6 +35,9 @@ const habitsSlice = createSlice({
         state.garden = action.payload.garden || [null, null, null, null, null, null];
         state.streak = action.payload.streak;
         state.lastLoginDate = action.payload.last_login_date;
+        // NUEVAS LÍNEAS
+        state.moodHistory = action.payload.mood_history || [];
+        state.completedMissions = action.payload.completed_missions || [];
       }
     },
     addHabit: (state, action: PayloadAction<Habit>) => { state.habits.push(action.payload); addHabitToDb(action.payload); },
@@ -56,7 +59,11 @@ const habitsSlice = createSlice({
     deleteHabit: (state, action) => { state.habits = state.habits.filter((h) => h.id !== action.payload); deleteHabitFromDb(action.payload); },
     resetHabitsDaily: (state) => {
       const today = new Date().toDateString();
-      if (state.lastHabitResetDate !== today) { state.habits.forEach((h) => { h.completed = false; }); state.lastHabitResetDate = today; }
+      if (state.lastHabitResetDate !== today) {
+        state.habits.forEach((h) => { h.completed = false; }); // Reinicia hábitos
+        state.completedMissions = []; // <-- ESTO ES NUEVO: Reinicia misiones diarias
+        state.lastHabitResetDate = today;
+      }
     },
     buySeed: (state, action: PayloadAction<{ type: string; price: number }>) => {
       if (state.coins >= action.payload.price) {

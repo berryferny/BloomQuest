@@ -8,10 +8,14 @@ import { fetchHabitsFromDb, fetchProfileFromDb, syncProfileToDb } from '../lib/h
 import { checkDailyStreak, resetHabitsDaily, setHabitsFromDb, setProfile, toggleHabit } from '../store/habitsSlice';
 
 export default function HomeScreen() {
-  const { habits = [], coins = 0, streak = 0, userName = 'Persona Bloom', garden = [], seedInventory = [], lastLoginDate = null } = useSelector((state: any) => state.habits);
+  const { 
+    habits = [], coins = 0, streak = 0, userName = 'Persona Bloom', 
+    garden = [], seedInventory = [], lastLoginDate = null,
+    moodHistory = [], completedMissions = [] // <-- NUEVOS
+  } = useSelector((state: any) => state.habits);
+  
   const dispatch = useDispatch();
 
-  // 1. Cargar datos desde la nube al iniciar
   useEffect(() => {
     const loadData = async () => {
       const dbHabits = await fetchHabitsFromDb();
@@ -28,13 +32,12 @@ export default function HomeScreen() {
     dispatch(resetHabitsDaily());
   }, [dispatch]);
 
-  // 2. Sincronizar con la nube cuando cambien las monedas, jardín o inventario
+  // Sincronizamos con la nube incluyendo emociones y misiones
   useEffect(() => {
-    // Solo sincronizamos si ya hay datos cargados (evitar borrar la nube al inicio)
     if (coins !== undefined) {
-      syncProfileToDb(coins, garden, seedInventory, streak, lastLoginDate);
+      syncProfileToDb(coins, garden, seedInventory, streak, lastLoginDate, moodHistory, completedMissions);
     }
-  }, [coins, garden, seedInventory, streak]);
+  }, [coins, garden, seedInventory, streak, moodHistory, completedMissions]);
 
   const totalHabits = habits.length;
   const completedHabits = habits.filter((h: any) => h.completed).length;

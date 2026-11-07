@@ -1,6 +1,5 @@
 import { supabase } from './supabase';
 
-// --- HÁBITOS ---
 export const fetchHabitsFromDb = async () => {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return [];
@@ -27,22 +26,27 @@ export const deleteHabitFromDb = async (habitId: string) => {
   await supabase.from('habits').delete().eq('id', habitId);
 };
 
-// --- PERFIL (Monedas, Jardín, etc) ---
 export const fetchProfileFromDb = async () => {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return null;
-
   const { data, error } = await supabase.from('profiles').select('*').eq('id', user.id).single();
-  
   if (error && error.code === 'PGRST116') {
-    // Si no existe el perfil, lo creamos
     const { data: newProfile } = await supabase.from('profiles').insert({ id: user.id }).select().single();
     return newProfile;
   }
   return data;
 };
 
-export const syncProfileToDb = async (coins: number, garden: any, inventory: string[], streak: number, lastLoginDate: string | null) => {
+// ACTUALIZADO: Ahora recibe y guarda el historial de emociones y las misiones
+export const syncProfileToDb = async (
+  coins: number, 
+  garden: any, 
+  inventory: string[], 
+  streak: number, 
+  lastLoginDate: string | null,
+  moodHistory: any[],
+  completedMissions: string[]
+) => {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return;
 
@@ -52,6 +56,8 @@ export const syncProfileToDb = async (coins: number, garden: any, inventory: str
     inventory,
     streak,
     last_login_date: lastLoginDate,
+    mood_history: moodHistory,
+    completed_missions: completedMissions,
     updated_at: new Date().toISOString()
   }).eq('id', user.id);
 };

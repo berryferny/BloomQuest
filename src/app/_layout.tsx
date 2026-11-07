@@ -2,7 +2,7 @@ import { Session } from '@supabase/supabase-js';
 import { Stack, useRouter, useSegments } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { useEffect, useState } from 'react';
-import { ActivityIndicator, Image, StyleSheet, View } from 'react-native'; // <-- Importamos para la carga
+import { ActivityIndicator, Dimensions, Image, StyleSheet, View } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { Provider } from 'react-redux';
 import { PersistGate } from 'redux-persist/integration/react';
@@ -13,6 +13,7 @@ import { supabase } from '../lib/supabase';
 import { persistor, store } from '../store';
 
 const PersistGateComponent = PersistGate as any;
+const { width: screenWidth } = Dimensions.get('window'); // <-- Importamos Dimensiones
 
 export default function RootLayout() {
   const [session, setSession] = useState<Session | null>(null);
@@ -50,7 +51,6 @@ export default function RootLayout() {
     }
   }, [session, segments, isLoading, router]);
 
-  // --- PANTALLA DE CARGA CON EL LOGO GRANDE ---
   if (isLoading) {
     return (
       <View style={styles.loadingContainer}>
@@ -63,7 +63,6 @@ export default function RootLayout() {
       </View>
     );
   }
-  // --------------------------------------------
 
   return (
     <SafeAreaProvider>
@@ -131,7 +130,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   loadingLogo: {
-    width: 280,
-    height: 140,
+    width: screenWidth * 0.7, // Adaptable al 70% de la pantalla
+    height: (screenWidth * 0.7) / 2,
   }
 });

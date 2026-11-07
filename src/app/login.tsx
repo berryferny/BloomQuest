@@ -1,9 +1,11 @@
 import { router } from 'expo-router';
 import { useState } from 'react';
-import { Alert, Image, KeyboardAvoidingView, Platform, SafeAreaView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { Alert, Dimensions, Image, KeyboardAvoidingView, Platform, SafeAreaView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { useDispatch } from 'react-redux';
 import { supabase } from '../lib/supabase';
 import { setUserName } from '../store/habitsSlice';
+
+const { width: screenWidth } = Dimensions.get('window');
 
 export default function LoginScreen() {
   const [email, setEmail] = useState('');
@@ -35,7 +37,6 @@ export default function LoginScreen() {
       <KeyboardAvoidingView style={styles.keyboardView} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
         <View style={styles.content}>
           
-          {/* AQUÍ ESTÁ TU LOGO GRANDE OTRA VEZ */}
           <Image 
             source={require('../../assets/images/logo-bloomquest.png')} 
             style={styles.logoImage} 
@@ -75,9 +76,10 @@ const styles = StyleSheet.create({
   keyboardView: { flex: 1 },
   content: { flex: 1, padding: 30, justifyContent: 'center' },
   
+  // EL LOGO AHORA ES ADAPTATIVO
   logoImage: {
-    width: 280,
-    height: 140,
+    width: screenWidth * 0.75, // Ocupa el 75% del ancho de la pantalla
+    height: (screenWidth * 0.75) / 2, // Mantiene la proporción rectangular
     alignSelf: 'center',
     marginBottom: 5,
   },

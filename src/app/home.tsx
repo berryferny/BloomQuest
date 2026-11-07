@@ -2,13 +2,13 @@ import { Ionicons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
 import { router } from 'expo-router';
 import { useEffect, useState } from 'react';
-import { ActivityIndicator, Image, SafeAreaView, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useDispatch, useSelector } from 'react-redux';
 import BottomNav from '../components/BottomNav';
 import BQLogo from '../components/BQLogo';
 import { fetchHabitsFromDb } from '../lib/habitsDb';
 import { checkDailyStreak, resetHabitsDaily, setHabitsFromDb, toggleHabit } from '../store/habitsSlice';
-
 export default function HomeScreen() {
   const { 
     habits = [], coins = 0, streak = 0, userName = 'Persona Bloom' 

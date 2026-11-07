@@ -2,7 +2,6 @@ import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { addHabitToDb, deleteHabitFromDb, toggleHabitInDb, updateHabitInDb } from '../lib/habitsDb';
 
 export interface Habit { id: string; name: string; completed: boolean; days: string[]; time: string; }
-// Agregamos el ID a la emoción
 interface MoodEntry { id: string; date: string; mood: string; emoji: string; }
 export interface Plant { id: string; type: string; emoji: string; stage: number; maxStage: number; isBloomed: boolean; lastWateredDate?: string; }
 
@@ -17,10 +16,13 @@ interface HabitsState {
   lastLoginDate: string | null;
   userName: string;
   lastHabitResetDate: string | null;
+  toastMessage: string | null; // <-- NUEVO
+  toastVisible: boolean;       // <-- NUEVO
 }
 
 const initialState: HabitsState = {
   habits: [], coins: 100, seedInventory: [], garden: [null, null, null, null, null, null], completedMissions: [], moodHistory: [], streak: 0, lastLoginDate: null, userName: 'Persona Bloom', lastHabitResetDate: null,
+  toastMessage: null, toastVisible: false, // <-- NUEVO
 };
 
 const habitsSlice = createSlice({
@@ -35,11 +37,21 @@ const habitsSlice = createSlice({
         state.garden = action.payload.garden || [null, null, null, null, null, null];
         state.streak = action.payload.streak;
         state.lastLoginDate = action.payload.last_login_date;
-        // NUEVAS LÍNEAS
         state.moodHistory = action.payload.mood_history || [];
         state.completedMissions = action.payload.completed_missions || [];
       }
     },
+    // ACCIONES PARA EL TOAST
+    showToast: (state, action: PayloadAction<string>) => {
+      state.toastMessage = action.payload;
+      state.toastVisible = true;
+    },
+    hideToast: (state) => {
+      state.toastVisible = false;
+      state.toastMessage = null;
+    },
+    // FIN ACCIONES TOAST
+
     addHabit: (state, action: PayloadAction<Habit>) => { state.habits.push(action.payload); addHabitToDb(action.payload); },
     updateHabit: (state, action: PayloadAction<{ id: string, name: string, days: string[], time: string }>) => {
       const habit = state.habits.find((h) => h.id === action.payload.id);
@@ -59,10 +71,10 @@ const habitsSlice = createSlice({
     deleteHabit: (state, action) => { state.habits = state.habits.filter((h) => h.id !== action.payload); deleteHabitFromDb(action.payload); },
     resetHabitsDaily: (state) => {
       const today = new Date().toDateString();
-      if (state.lastHabitResetDate !== today) {
-        state.habits.forEach((h) => { h.completed = false; }); // Reinicia hábitos
-        state.completedMissions = []; // <-- ESTO ES NUEVO: Reinicia misiones diarias
-        state.lastHabitResetDate = today;
+      if (state.lastHabitResetDate !== today) { 
+        state.habits.forEach((h) => { h.completed = false; }); 
+        state.completedMissions = []; 
+        state.lastHabitResetDate = today; 
       }
     },
     buySeed: (state, action: PayloadAction<{ type: string; price: number }>) => {
@@ -96,22 +108,13 @@ const habitsSlice = createSlice({
       if (!state.completedMissions) state.completedMissions = [];
       if (!state.completedMissions.includes(action.payload.missionId)) { state.completedMissions.push(action.payload.missionId); state.coins += action.payload.reward; }
     },
-    // ACTUALIZADO: Agregamos el ID a la emoción
     addMood: (state, action) => {
       if (!state.moodHistory) state.moodHistory = [];
-      state.moodHistory.unshift({ 
-        id: Date.now().toString(), 
-        date: new Date().toLocaleDateString('es-ES', { weekday: 'short', day: 'numeric', month: 'short' }), 
-        mood: action.payload.mood, 
-        emoji: action.payload.emoji 
-      });
+      state.moodHistory.unshift({ id: Date.now().toString(), date: new Date().toLocaleDateString('es-ES', { weekday: 'short', day: 'numeric', month: 'short' }), mood: action.payload.mood, emoji: action.payload.emoji });
     },
     deleteMood: (state, action: PayloadAction<any>) => {
-      if (typeof action.payload === 'string') {
-        state.moodHistory = state.moodHistory.filter((m) => m.id !== action.payload);
-      } else {
-        state.moodHistory.splice(action.payload, 1);
-      }
+      if (typeof action.payload === 'string') state.moodHistory = state.moodHistory.filter((m) => m.id !== action.payload);
+      else state.moodHistory.splice(action.payload, 1);
     },
     addCoins: (state, action) => { state.coins += action.payload; },
     checkDailyStreak: (state) => {
@@ -129,7 +132,8 @@ const habitsSlice = createSlice({
 });
 
 export const { 
-  setHabitsFromDb, setProfile, addHabit, updateHabit, toggleHabit, deleteHabit, resetHabitsDaily, 
+  setHabitsFromDb, setProfile, showToast, hideToast, 
+  addHabit, updateHabit, toggleHabit, deleteHabit, resetHabitsDaily, 
   buySeed, plantSeed, waterPlant, completeMission, addMood, deleteMood, addCoins, checkDailyStreak, setUserName 
 } = habitsSlice.actions;
 

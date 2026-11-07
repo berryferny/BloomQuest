@@ -1,8 +1,8 @@
 import { Ionicons } from '@expo/vector-icons';
-import { Alert, SafeAreaView, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { SafeAreaView, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 import BackButton from '../components/BackButton';
-import { completeMission } from '../store/habitsSlice';
+import { completeMission, showToast } from '../store/habitsSlice'; // <-- Importamos showToast
 
 const MISSIONS = [
   { id: 'm1', title: 'Tomar un vaso de agua', reward: 5 },
@@ -16,8 +16,21 @@ export default function MissionsScreen() {
   const dispatch = useDispatch();
 
   const handleComplete = (id: string, reward: number, title: string) => {
+    // Verificamos si es la primera misión ANTES de completarla
+    const isFirstMission = completedMissions.length === 0;
+
+    // Completamos la misión en Redux
     dispatch(completeMission({ missionId: id, reward }));
-    Alert.alert("¡Misión cumplida!", `Has ganado ${reward} monedas por: ${title}`);
+    
+    // Mostramos la notificación flotante de la misión
+    dispatch(showToast(`¡Misión cumplida! +${reward} monedas`));
+
+    // Si era la primera, mostramos el logro un ratito después (para que no se encimen)
+    if (isFirstMission) {
+      setTimeout(() => {
+        dispatch(showToast('🏆 ¡Logro desbloqueado: Misión cumplida!'));
+      }, 3200);
+    }
   };
 
   return (

@@ -4,11 +4,11 @@ import { TouchableOpacity } from 'react-native';
 
 export default function BackButton() {
   const handleGoBack = () => {
-    // Si la app sabe que hay una pantalla atrás, regresa
+    // Si la app sabe a dónde volver, que regrese
     if (router.canGoBack()) {
       router.back();
     } else {
-      // Si no hay historial (recargaste la página), te manda al Home
+      // Si recargaste la página y no hay historial, que te mande al Home
       router.replace('/home');
     }
   };

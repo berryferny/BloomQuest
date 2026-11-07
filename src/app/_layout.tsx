@@ -2,6 +2,7 @@ import { Session } from '@supabase/supabase-js';
 import { Stack, useRouter, useSegments } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { useEffect, useState } from 'react';
+import { ActivityIndicator, Image, StyleSheet, View } from 'react-native'; // <-- Importamos para la carga
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { Provider } from 'react-redux';
 import { PersistGate } from 'redux-persist/integration/react';
@@ -49,7 +50,20 @@ export default function RootLayout() {
     }
   }, [session, segments, isLoading, router]);
 
-  if (isLoading) return null;
+  // --- PANTALLA DE CARGA CON EL LOGO GRANDE ---
+  if (isLoading) {
+    return (
+      <View style={styles.loadingContainer}>
+        <Image 
+          source={require('../../assets/images/logo-bloomquest.png')} 
+          style={styles.loadingLogo} 
+          resizeMode="contain"
+        />
+        <ActivityIndicator size="large" color="#705849" style={{ marginTop: 20 }} />
+      </View>
+    );
+  }
+  // --------------------------------------------
 
   return (
     <SafeAreaProvider>
@@ -58,15 +72,12 @@ export default function RootLayout() {
           <StatusBar style="auto" />
           
           <Stack screenOptions={{ headerShown: false }}>
-            {/* Rutas Públicas */}
             <Stack.Screen name="index" />
             <Stack.Screen name="login" />
             <Stack.Screen name="register" />
             <Stack.Screen name="recover-password" />
             <Stack.Screen name="reset-password" />
             <Stack.Screen name="onboarding" />
-
-            {/* Rutas Privadas */}
             <Stack.Screen name="home" />
             <Stack.Screen name="habits" />
             <Stack.Screen name="create-habit" />
@@ -87,8 +98,6 @@ export default function RootLayout() {
             <Stack.Screen name="trivia" />
             <Stack.Screen name="stars-game" />
             <Stack.Screen name="garden-game" />
-            
-            {/* Configuración */}
             <Stack.Screen name="settings" />
             <Stack.Screen name="settings-notifications" />
             <Stack.Screen name="settings-privacy" />
@@ -113,3 +122,16 @@ export default function RootLayout() {
     </SafeAreaProvider>
   );
 }
+
+const styles = StyleSheet.create({
+  loadingContainer: {
+    flex: 1,
+    backgroundColor: '#F8F5EF',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  loadingLogo: {
+    width: 280,
+    height: 140,
+  }
+});

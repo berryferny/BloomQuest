@@ -2,7 +2,7 @@ import { Ionicons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
 import { router } from 'expo-router';
 import { useEffect, useState } from 'react';
-import { ActivityIndicator, SafeAreaView, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, Image, SafeAreaView, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 import BottomNav from '../components/BottomNav';
 import BQLogo from '../components/BQLogo';
@@ -38,14 +38,21 @@ export default function HomeScreen() {
     }
   };
 
+  // --- PANTALLA DE CARGA CON EL LOGO GRANDE ---
   if (isFetching) {
     return (
       <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#F8F5EF' }}>
-        <ActivityIndicator size="large" color="#705849" />
-        <Text style={{ marginTop: 10, color: '#705849', fontWeight: 'bold' }}>Cargando tu jardín...</Text>
+        <Image 
+          source={require('../../assets/images/logo-bloomquest.png')} 
+          style={{ width: 220, height: 110 }} 
+          resizeMode="contain" 
+        />
+        <ActivityIndicator size="large" color="#705849" style={{ marginTop: 20 }} />
+        <Text style={{ marginTop: 10, color: '#705849', fontWeight: 'bold' }}>Preparando tu jardín...</Text>
       </View>
     );
   }
+  // --------------------------------------------
 
   const totalHabits = habits.length;
   const completedHabits = habits.filter((h: any) => h.completed).length;

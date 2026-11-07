@@ -9,7 +9,6 @@ import BQLogo from '../components/BQLogo';
 import { supabase } from '../lib/supabase';
 import { setAvatarUrl, setUserName } from '../store/habitsSlice';
 
-// Aquí están las URLs de tus avatares subidos a Supabase
 const DEFAULT_AVATARS = [
   "https://lzlkajsrqjevbmnvdnro.supabase.co/storage/v1/object/public/avatars/avatar_boy.jpg",
   "https://lzlkajsrqjevbmnvdnro.supabase.co/storage/v1/object/public/avatars/avatar_fox.jpg",
@@ -42,25 +41,34 @@ export default function PersonalDataScreen() {
     }
     setLoading(true);
     
+    // 1. Actualizamos el nombre y correo en Auth
     const { error } = await supabase.auth.updateUser({
       email: email, 
       data: { full_name: name }
     });
     
-    setLoading(false);
-
     if (error) {
+      setLoading(false);
       Alert.alert("Error", error.message);
+      return;
+    }
+
+    // 2. ACTUALIZAMOS LA FOTO EN LA TABLA PROFILES
+    const { data: { user } } = await supabase.auth.getUser();
+    if (user) {
+      await supabase.from('profiles').update({ 
+        avatar_url: avatarUrl 
+      }).eq('id', user.id);
+    }
+
+    setLoading(false);
+    dispatch(setUserName(name));
+    Alert.alert("¡Éxito!", "Tus datos se han actualizado.");
+    
+    if (router.canGoBack()) {
+      router.back();
     } else {
-      dispatch(setUserName(name));
-      Alert.alert("¡Éxito!", "Tus datos se han actualizado.");
-      
-      // EL FIX ESTÁ AQUÍ: Regresa seguro o va al perfil si no hay historial
-      if (router.canGoBack()) {
-        router.back();
-      } else {
-        router.replace('/profile');
-      }
+      router.replace('/profile');
     }
   };
 
@@ -101,7 +109,7 @@ export default function PersonalDataScreen() {
 
       const { data } = supabase.storage.from('avatars').getPublicUrl(fileName);
       dispatch(setAvatarUrl(data.publicUrl));
-      Alert.alert("¡Listo!", "Foto actualizada.");
+      Alert.alert("¡Listo!", "Foto subida. No olvides darle a 'Guardar cambios'.");
     } catch (error) {
       console.error(error);
       Alert.alert("Error", "No se pudo subir la imagen.");
@@ -144,10 +152,7 @@ export default function PersonalDataScreen() {
                 <TouchableOpacity 
                   key={index} 
                   style={[styles.avatarOption, avatarUrl === url && styles.avatarOptionSelected]} 
-                  onPress={() => {
-                    dispatch(setAvatarUrl(url));
-                    Alert.alert("¡Genial!", "Avatar seleccionado. No olvides guardar cambios.");
-                  }}
+                  onPress={() => dispatch(setAvatarUrl(url))}
                 >
                   <Image source={{ uri: url }} style={styles.avatarThumb} />
                 </TouchableOpacity>

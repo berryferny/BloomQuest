@@ -1,17 +1,16 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { addHabitToDb, deleteHabitFromDb, toggleHabitInDb, updateHabitInDb } from '../lib/habitsDb';
 
-interface Habit { id: string; name: string; completed: boolean; }
-interface MoodEntry { date: string; mood: string; emoji: string; }
-
-export interface Plant {
-  id: string;
-  type: string;
-  emoji: string;
-  stage: number;
-  maxStage: number;
-  isBloomed: boolean;
-  lastWateredDate?: string; // <-- NUEVO: Guarda el día del último riego
+export interface Habit { 
+  id: string; 
+  name: string; 
+  completed: boolean; 
+  days: string[]; 
+  time: string;
 }
+
+interface MoodEntry { date: string; mood: string; emoji: string; }
+export interface Plant { id: string; type: string; emoji: string; stage: number; maxStage: number; isBloomed: boolean; lastWateredDate?: string; }
 
 interface HabitsState {
   habits: Habit[];
@@ -43,15 +42,35 @@ const habitsSlice = createSlice({
   name: 'habits',
   initialState,
   reducers: {
-    addHabit: (state, action) => { state.habits.push(action.payload); },
+    setHabitsFromDb: (state, action) => {
+      state.habits = action.payload;
+    },
+    addHabit: (state, action: PayloadAction<Habit>) => { 
+      state.habits.push(action.payload); 
+      addHabitToDb(action.payload); 
+    },
+    // NUEVA ACCIÓN: Actualizar Hábito
+    updateHabit: (state, action: PayloadAction<{ id: string, name: string, days: string[], time: string }>) => {
+      const habit = state.habits.find((h) => h.id === action.payload.id);
+      if (habit) {
+        habit.name = action.payload.name;
+        habit.days = action.payload.days;
+        habit.time = action.payload.time;
+        updateHabitInDb(action.payload.id, action.payload.name, action.payload.days, action.payload.time);
+      }
+    },
     toggleHabit: (state, action) => {
       const habit = state.habits.find((h) => h.id === action.payload);
       if (habit) {
         habit.completed = !habit.completed;
         state.coins += habit.completed ? 10 : -10;
+        toggleHabitInDb(habit.id, habit.completed); 
       }
     },
-    deleteHabit: (state, action) => { state.habits = state.habits.filter((h) => h.id !== action.payload); },
+    deleteHabit: (state, action) => { 
+      state.habits = state.habits.filter((h) => h.id !== action.payload); 
+      deleteHabitFromDb(action.payload); 
+    },
     resetHabitsDaily: (state) => {
       const today = new Date().toDateString();
       if (state.lastHabitResetDate !== today) {
@@ -59,7 +78,6 @@ const habitsSlice = createSlice({
         state.lastHabitResetDate = today;
       }
     },
-    
     buySeed: (state, action: PayloadAction<{ type: string; price: number }>) => {
       if (state.coins >= action.payload.price) {
         state.coins -= action.payload.price;
@@ -67,46 +85,26 @@ const habitsSlice = createSlice({
         state.seedInventory.push(action.payload.type);
       }
     },
-    plantSeed: (state, action: PayloadAction<{ index: number; type: string; maxStage: number; emoji: string }>) => {
+    plantSeed: (state, action) => {
       if (!state.seedInventory) state.seedInventory = [];
-      if (!state.garden || state.garden.length === 0) {
-        state.garden = [null, null, null, null, null, null];
-      }
-      
+      if (!state.garden || state.garden.length === 0) state.garden = [null, null, null, null, null, null];
       const seedIndex = state.seedInventory.indexOf(action.payload.type);
       if (seedIndex !== -1) {
         state.seedInventory.splice(seedIndex, 1);
-        state.garden[action.payload.index] = {
-          id: Date.now().toString(),
-          type: action.payload.type,
-          emoji: action.payload.emoji,
-          stage: 0,
-          maxStage: action.payload.maxStage,
-          isBloomed: false,
-          lastWateredDate: undefined, // Aún no se ha regado
-        };
+        state.garden[action.payload.index] = { id: Date.now().toString(), type: action.payload.type, emoji: action.payload.emoji, stage: 0, maxStage: action.payload.maxStage, isBloomed: false, lastWateredDate: undefined };
       }
     },
-    waterPlant: (state, action: PayloadAction<number>) => {
+    waterPlant: (state, action) => {
       if (!state.garden) state.garden = [null, null, null, null, null, null];
       const plant = state.garden[action.payload];
-      
       if (plant && !plant.isBloomed) {
         const today = new Date().toDateString();
-        
-        // LÓGICA DE REGADO DIARIO: Solo crece si no se ha regado hoy
         if (plant.lastWateredDate !== today) {
-          plant.stage += 1;
-          plant.lastWateredDate = today; // Guardamos el día de hoy
-          
-          if (plant.stage >= plant.maxStage) {
-            plant.isBloomed = true;
-            state.coins += 10; 
-          }
+          plant.stage += 1; plant.lastWateredDate = today;
+          if (plant.stage >= plant.maxStage) { plant.isBloomed = true; state.coins += 10; }
         }
       }
     },
-
     completeMission: (state, action) => {
       if (!state.completedMissions) state.completedMissions = [];
       if (!state.completedMissions.includes(action.payload.missionId)) {
@@ -116,21 +114,16 @@ const habitsSlice = createSlice({
     },
     addMood: (state, action) => {
       if (!state.moodHistory) state.moodHistory = [];
-      state.moodHistory.unshift({
-        date: new Date().toLocaleDateString('es-ES', { weekday: 'short', day: 'numeric', month: 'short' }),
-        mood: action.payload.mood, emoji: action.payload.emoji
-      });
+      state.moodHistory.unshift({ date: new Date().toLocaleDateString('es-ES', { weekday: 'short', day: 'numeric', month: 'short' }), mood: action.payload.mood, emoji: action.payload.emoji });
     },
     addCoins: (state, action) => { state.coins += action.payload; },
     checkDailyStreak: (state) => {
       const today = new Date().toDateString();
-      if (!state.lastLoginDate) {
-        state.streak = 1; state.lastLoginDate = today; state.coins += 10; 
-      } else if (state.lastLoginDate !== today) {
+      if (!state.lastLoginDate) { state.streak = 1; state.lastLoginDate = today; state.coins += 10; } 
+      else if (state.lastLoginDate !== today) {
         const lastDate = new Date(state.lastLoginDate);
         const diffDays = Math.ceil(Math.abs(new Date(today).getTime() - lastDate.getTime()) / (1000 * 60 * 60 * 24));
-        if (diffDays === 1) { state.streak += 1; state.coins += 20; } 
-        else { state.streak = 1; state.coins += 10; }
+        if (diffDays === 1) { state.streak += 1; state.coins += 20; } else { state.streak = 1; state.coins += 10; }
         state.lastLoginDate = today;
       }
     },
@@ -139,9 +132,8 @@ const habitsSlice = createSlice({
 });
 
 export const { 
-  addHabit, toggleHabit, deleteHabit, resetHabitsDaily, 
-  buySeed, plantSeed, waterPlant,
-  completeMission, addMood, addCoins, checkDailyStreak, setUserName 
+  setHabitsFromDb, addHabit, updateHabit, toggleHabit, deleteHabit, resetHabitsDaily, 
+  buySeed, plantSeed, waterPlant, completeMission, addMood, addCoins, checkDailyStreak, setUserName 
 } = habitsSlice.actions;
 
 export default habitsSlice.reducer;

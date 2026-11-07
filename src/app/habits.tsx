@@ -10,20 +10,18 @@ export default function HabitsScreen() {
   const { habits = [] } = useSelector((state: any) => state.habits);
   const dispatch = useDispatch();
   
-  // Estados para el modal de eliminación
   const [habitToDelete, setHabitToDelete] = useState<{ id: string, name: string } | null>(null);
 
   const confirmDelete = () => {
     if (habitToDelete) {
       dispatch(deleteHabit(habitToDelete.id));
-      setHabitToDelete(null); // Cerramos el modal
+      setHabitToDelete(null);
     }
   };
 
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView contentContainerStyle={styles.scrollContent}>
-        
         <Text style={styles.logoText}>BQ</Text>
         <Text style={styles.title}>Mis hábitos</Text>
         <Text style={styles.subtitle}>Pequeños pasos que hacen la diferencia.</Text>
@@ -47,14 +45,28 @@ export default function HabitsScreen() {
                     <Text style={[styles.habitName, habit.completed && styles.habitCompleted]}>
                       {habit.name}
                     </Text>
-                    <Text style={styles.habitFreq}>Todos los días · +10 monedas</Text>
+                    <Text style={styles.habitFreq}>
+                      {habit.days && habit.days.length > 0 
+                        ? habit.days.map((d: string) => d.charAt(0)).join(', ') 
+                        : 'Sin días'} 
+                      {' · '} 
+                      {habit.time || 'Sin hora'}
+                    </Text>
                   </View>
                 </TouchableOpacity>
 
-                {/* Botón de borrar */}
+                {/* BOTÓN DE EDITAR (EL LÁPIZ) */}
+                <TouchableOpacity 
+                  onPress={() => router.push({ pathname: '/create-habit', params: { id: habit.id } })} 
+                  style={styles.actionButton}
+                >
+                  <Ionicons name="pencil" size={20} color="#705849" />
+                </TouchableOpacity>
+
+                {/* BOTÓN DE ELIMINAR */}
                 <TouchableOpacity 
                   onPress={() => setHabitToDelete({ id: habit.id, name: habit.name })} 
-                  style={styles.deleteButton}
+                  style={styles.actionButton}
                 >
                   <Ionicons name="trash-outline" size={20} color="#C0392B" />
                 </TouchableOpacity>
@@ -66,11 +78,9 @@ export default function HabitsScreen() {
         <TouchableOpacity style={styles.addButton} onPress={() => router.push('/create-habit')}>
           <Text style={styles.addButtonText}>Agregar un hábito</Text>
         </TouchableOpacity>
-
       </ScrollView>
       <BottomNav />
 
-      {/* MODAL DE CONFIRMACIÓN DE BORRADO */}
       <Modal
         visible={!!habitToDelete}
         transparent={true}
@@ -97,7 +107,6 @@ export default function HabitsScreen() {
           </View>
         </View>
       </Modal>
-
     </SafeAreaView>
   );
 }
@@ -110,67 +119,22 @@ const styles = StyleSheet.create({
   subtitle: { fontSize: 14, color: '#705849', marginTop: 5, marginBottom: 20 },
   listContainer: { marginBottom: 20 },
   emptyText: { color: '#705849', fontStyle: 'italic' },
-  
-  habitCard: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#FFFFFF',
-    borderRadius: 10,
-    marginBottom: 10,
-    borderWidth: 1,
-    borderColor: '#EBE5DA',
-    paddingRight: 15,
-  },
-  habitClickableArea: {
-    flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    padding: 15,
-  },
+  habitCard: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#FFFFFF', borderRadius: 10, marginBottom: 10, borderWidth: 1, borderColor: '#EBE5DA', paddingRight: 10 },
+  habitClickableArea: { flex: 1, flexDirection: 'row', alignItems: 'center', padding: 15 },
   habitInfo: { marginLeft: 15, flex: 1 },
   habitName: { fontSize: 16, fontWeight: 'bold', color: '#342F29' },
   habitCompleted: { textDecorationLine: 'line-through', color: '#9BAA91' },
   habitFreq: { fontSize: 12, color: '#9BAA91', marginTop: 4 },
-  deleteButton: { padding: 10 },
-
+  actionButton: { padding: 10 },
   addButton: { backgroundColor: '#705849', padding: 15, borderRadius: 10, alignItems: 'center' },
   addButtonText: { color: '#F8F5EF', fontSize: 16, fontWeight: 'bold' },
-
-  // ESTILOS DEL MODAL
-  modalOverlay: {
-    flex: 1,
-    backgroundColor: 'rgba(52, 47, 41, 0.7)', // Espresso con opacidad
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: 20,
-  },
-  modalContent: {
-    backgroundColor: '#F8F5EF',
-    borderRadius: 15,
-    padding: 25,
-    width: '100%',
-    maxWidth: 400,
-    alignItems: 'center',
-  },
+  modalOverlay: { flex: 1, backgroundColor: 'rgba(52, 47, 41, 0.7)', justifyContent: 'center', alignItems: 'center', padding: 20 },
+  modalContent: { backgroundColor: '#F8F5EF', borderRadius: 15, padding: 25, width: '100%', maxWidth: 400, alignItems: 'center' },
   modalTitle: { fontSize: 22, fontWeight: 'bold', color: '#342F29', marginBottom: 10 },
   modalText: { fontSize: 16, color: '#705849', textAlign: 'center', marginBottom: 25, lineHeight: 22 },
   modalButtons: { flexDirection: 'row', justifyContent: 'space-between', width: '100%' },
-  cancelButton: {
-    flex: 1,
-    backgroundColor: '#EBE5DA',
-    padding: 12,
-    borderRadius: 8,
-    alignItems: 'center',
-    marginRight: 10,
-  },
+  cancelButton: { flex: 1, backgroundColor: '#EBE5DA', padding: 12, borderRadius: 8, alignItems: 'center', marginRight: 10 },
   cancelButtonText: { color: '#705849', fontWeight: 'bold', fontSize: 16 },
-  deleteConfirmButton: {
-    flex: 1,
-    backgroundColor: '#C0392B',
-    padding: 12,
-    borderRadius: 8,
-    alignItems: 'center',
-    marginLeft: 10,
-  },
+  deleteConfirmButton: { flex: 1, backgroundColor: '#C0392B', padding: 12, borderRadius: 8, alignItems: 'center', marginLeft: 10 },
   deleteConfirmText: { color: '#FFFFFF', fontWeight: 'bold', fontSize: 16 },
 });

@@ -1,8 +1,7 @@
-import BQLogo from '@/components/BQLogo';
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import { useState } from 'react';
-import { Modal, SafeAreaView, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Modal, SafeAreaView, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 import BottomNav from '../components/BottomNav';
 import { deleteHabit, toggleHabit } from '../store/habitsSlice';
@@ -11,6 +10,10 @@ export default function HabitsScreen() {
   const { habits = [] } = useSelector((state: any) => state.habits);
   const dispatch = useDispatch();
   
+  // Estados para los filtros y la búsqueda
+  const [searchQuery, setSearchQuery] = useState('');
+  const [activeFilter, setActiveFilter] = useState<'all' | 'pending' | 'completed'>('all');
+
   const [habitToDelete, setHabitToDelete] = useState<{ id: string, name: string } | null>(null);
 
   const confirmDelete = () => {
@@ -20,18 +23,68 @@ export default function HabitsScreen() {
     }
   };
 
+  // Lógica para filtrar los hábitos
+  const filteredHabits = habits.filter((habit: any) => {
+    const matchesSearch = habit.name.toLowerCase().includes(searchQuery.toLowerCase());
+    if (activeFilter === 'pending') return matchesSearch && !habit.completed;
+    if (activeFilter === 'completed') return matchesSearch && habit.completed;
+    return matchesSearch;
+  });
+
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView contentContainerStyle={styles.scrollContent}>
-        <BQLogo />
+        <Text style={styles.logoText}>BQ</Text>
         <Text style={styles.title}>Mis hábitos</Text>
         <Text style={styles.subtitle}>Pequeños pasos que hacen la diferencia.</Text>
 
+        {/* BARRA DE BÚSQUEDA */}
+        <View style={styles.searchContainer}>
+          <Ionicons name="search" size={20} color="#9BAA91" style={styles.searchIcon} />
+          <TextInput
+            style={styles.searchInput}
+            placeholder="Buscar hábito..."
+            placeholderTextColor="#9BAA91"
+            value={searchQuery}
+            onChangeText={setSearchQuery}
+          />
+          {searchQuery.length > 0 && (
+            <TouchableOpacity onPress={() => setSearchQuery('')}>
+              <Ionicons name="close-circle" size={20} color="#9BAA91" />
+            </TouchableOpacity>
+          )}
+        </View>
+
+        {/* BOTONES DE FILTRO */}
+        <View style={styles.filtersRow}>
+          <TouchableOpacity 
+            style={[styles.filterButton, activeFilter === 'all' && styles.filterButtonActive]}
+            onPress={() => setActiveFilter('all')}
+          >
+            <Text style={[styles.filterText, activeFilter === 'all' && styles.filterTextActive]}>Todos</Text>
+          </TouchableOpacity>
+          
+          <TouchableOpacity 
+            style={[styles.filterButton, activeFilter === 'pending' && styles.filterButtonActive]}
+            onPress={() => setActiveFilter('pending')}
+          >
+            <Text style={[styles.filterText, activeFilter === 'pending' && styles.filterTextActive]}>Pendientes</Text>
+          </TouchableOpacity>
+          
+          <TouchableOpacity 
+            style={[styles.filterButton, activeFilter === 'completed' && styles.filterButtonActive]}
+            onPress={() => setActiveFilter('completed')}
+          >
+            <Text style={[styles.filterText, activeFilter === 'completed' && styles.filterTextActive]}>Completados</Text>
+          </TouchableOpacity>
+        </View>
+
+        {/* LISTA DE HÁBITOS */}
         <View style={styles.listContainer}>
-          {habits.length === 0 ? (
-            <Text style={styles.emptyText}>Aún no tienes hábitos.</Text>
+          {filteredHabits.length === 0 ? (
+            <Text style={styles.emptyText}>No se encontraron hábitos.</Text>
           ) : (
-            habits.map((habit: any) => (
+            filteredHabits.map((habit: any) => (
               <View key={habit.id} style={styles.habitCard}>
                 <TouchableOpacity 
                   style={styles.habitClickableArea}
@@ -56,7 +109,6 @@ export default function HabitsScreen() {
                   </View>
                 </TouchableOpacity>
 
-                {/* BOTÓN DE EDITAR (EL LÁPIZ) */}
                 <TouchableOpacity 
                   onPress={() => router.push({ pathname: '/create-habit', params: { id: habit.id } })} 
                   style={styles.actionButton}
@@ -64,7 +116,6 @@ export default function HabitsScreen() {
                   <Ionicons name="pencil" size={20} color="#705849" />
                 </TouchableOpacity>
 
-                {/* BOTÓN DE ELIMINAR */}
                 <TouchableOpacity 
                   onPress={() => setHabitToDelete({ id: habit.id, name: habit.name })} 
                   style={styles.actionButton}
@@ -82,6 +133,7 @@ export default function HabitsScreen() {
       </ScrollView>
       <BottomNav />
 
+      {/* MODAL DE ELIMINAR */}
       <Modal
         visible={!!habitToDelete}
         transparent={true}
@@ -118,8 +170,39 @@ const styles = StyleSheet.create({
   logoText: { fontSize: 32, fontWeight: 'bold', color: '#342F29', marginBottom: 10 },
   title: { fontSize: 24, fontWeight: 'bold', color: '#342F29' },
   subtitle: { fontSize: 14, color: '#705849', marginTop: 5, marginBottom: 20 },
+  
+  // Estilos de búsqueda
+  searchContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#FFFFFF',
+    borderWidth: 1,
+    borderColor: '#EBE5DA',
+    borderRadius: 12,
+    paddingHorizontal: 15,
+    marginBottom: 15,
+  },
+  searchIcon: { marginRight: 10 },
+  searchInput: { flex: 1, paddingVertical: 12, fontSize: 16, color: '#342F29' },
+
+  // Estilos de filtros
+  filtersRow: { flexDirection: 'row', marginBottom: 20 },
+  filterButton: {
+    paddingVertical: 8,
+    paddingHorizontal: 15,
+    borderRadius: 20,
+    backgroundColor: '#FFFFFF',
+    borderWidth: 1,
+    borderColor: '#EBE5DA',
+    marginRight: 10,
+  },
+  filterButtonActive: { backgroundColor: '#9BAA91', borderColor: '#9BAA91' },
+  filterText: { fontSize: 14, fontWeight: 'bold', color: '#705849' },
+  filterTextActive: { color: '#FFFFFF' },
+
   listContainer: { marginBottom: 20 },
-  emptyText: { color: '#705849', fontStyle: 'italic' },
+  emptyText: { color: '#705849', fontStyle: 'italic', textAlign: 'center', marginTop: 20 },
+  
   habitCard: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#FFFFFF', borderRadius: 10, marginBottom: 10, borderWidth: 1, borderColor: '#EBE5DA', paddingRight: 10 },
   habitClickableArea: { flex: 1, flexDirection: 'row', alignItems: 'center', padding: 15 },
   habitInfo: { marginLeft: 15, flex: 1 },
@@ -129,6 +212,7 @@ const styles = StyleSheet.create({
   actionButton: { padding: 10 },
   addButton: { backgroundColor: '#705849', padding: 15, borderRadius: 10, alignItems: 'center' },
   addButtonText: { color: '#F8F5EF', fontSize: 16, fontWeight: 'bold' },
+  
   modalOverlay: { flex: 1, backgroundColor: 'rgba(52, 47, 41, 0.7)', justifyContent: 'center', alignItems: 'center', padding: 20 },
   modalContent: { backgroundColor: '#F8F5EF', borderRadius: 15, padding: 25, width: '100%', maxWidth: 400, alignItems: 'center' },
   modalTitle: { fontSize: 22, fontWeight: 'bold', color: '#342F29', marginBottom: 10 },

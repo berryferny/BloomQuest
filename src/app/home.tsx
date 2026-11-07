@@ -21,7 +21,6 @@ export default function HomeScreen() {
     const loadData = async () => {
       const dbHabits = await fetchHabitsFromDb();
       if (dbHabits.length > 0) dispatch(setHabitsFromDb(dbHabits));
-      
       setIsFetching(false);
     };
 

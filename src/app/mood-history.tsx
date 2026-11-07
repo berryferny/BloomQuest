@@ -1,16 +1,15 @@
-import BQLogo from '@/components/BQLogo';
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import { useState } from 'react';
 import { Modal, SafeAreaView, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 import BackButton from '../components/BackButton';
+import BQLogo from '../components/BQLogo';
 import { deleteMood } from '../store/habitsSlice';
 
 export default function MoodHistoryScreen() {
   const { moodHistory = [] } = useSelector((state: any) => state.habits);
   const dispatch = useDispatch();
-
   const [moodToDelete, setMoodToDelete] = useState<any>(null);
 
   const confirmDelete = () => {
@@ -22,11 +21,9 @@ export default function MoodHistoryScreen() {
 
   return (
     <SafeAreaView style={styles.container}>
-      <View style={styles.header}>
-        <BackButton />
-      </View>
+      <View style={styles.header}><BackButton /></View>
       <ScrollView contentContainerStyle={styles.scrollContent}>
-        <BQLogo />
+        <BQLogo size={40} />
         <Text style={styles.title}>Mi historial emocional</Text>
         <Text style={styles.subtitle}>Observa cómo cambian tus días.</Text>
 
@@ -34,7 +31,6 @@ export default function MoodHistoryScreen() {
           {moodHistory.length === 0 ? (
             <Text style={styles.emptyText}>Aún no has registrado emociones.</Text>
           ) : (
-            // Aquí agregamos el índice y el arreglo del key
             moodHistory.map((entry: any, index: number) => (
               <View key={entry.id || index} style={styles.historyItem}>
                 <View style={styles.historyInfo}>
@@ -42,10 +38,7 @@ export default function MoodHistoryScreen() {
                   <Text style={styles.historyEmoji}>{entry.emoji}</Text>
                   <Text style={styles.historyMood}>{entry.mood}</Text>
                 </View>
-                <TouchableOpacity 
-                  onPress={() => setMoodToDelete(entry.id || index)} 
-                  style={styles.deleteButton}
-                >
+                <TouchableOpacity onPress={() => setMoodToDelete(entry.id || index)} style={styles.deleteButton}>
                   <Ionicons name="trash-outline" size={20} color="#C0392B" />
                 </TouchableOpacity>
               </View>
@@ -58,25 +51,16 @@ export default function MoodHistoryScreen() {
         </TouchableOpacity>
       </ScrollView>
 
-      <Modal
-        visible={moodToDelete !== null}
-        transparent={true}
-        animationType="fade"
-        onRequestClose={() => setMoodToDelete(null)}
-      >
+      <Modal visible={moodToDelete !== null} transparent={true} animationType="fade" onRequestClose={() => setMoodToDelete(null)}>
         <View style={styles.modalOverlay}>
           <View style={styles.modalContent}>
             <Ionicons name="warning-outline" size={40} color="#C0392B" style={{ marginBottom: 10 }} />
             <Text style={styles.modalTitle}>Eliminar registro</Text>
-            <Text style={styles.modalText}>
-              ¿Estás seguro que quieres borrar esta emoción de tu historial?
-            </Text>
-            
+            <Text style={styles.modalText}>¿Estás seguro que quieres borrar esta emoción de tu historial?</Text>
             <View style={styles.modalButtons}>
               <TouchableOpacity style={styles.cancelButton} onPress={() => setMoodToDelete(null)}>
                 <Text style={styles.cancelButtonText}>Cancelar</Text>
               </TouchableOpacity>
-              
               <TouchableOpacity style={styles.deleteConfirmButton} onPress={confirmDelete}>
                 <Text style={styles.deleteConfirmText}>Eliminar</Text>
               </TouchableOpacity>
@@ -84,7 +68,6 @@ export default function MoodHistoryScreen() {
           </View>
         </View>
       </Modal>
-
     </SafeAreaView>
   );
 }
@@ -93,7 +76,6 @@ const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#F8F5EF' },
   header: { paddingHorizontal: 10, paddingTop: 10 },
   scrollContent: { padding: 20, paddingBottom: 40 },
-  logoText: { fontSize: 32, fontWeight: 'bold', color: '#342F29', marginBottom: 10 },
   title: { fontSize: 24, fontWeight: 'bold', color: '#342F29' },
   subtitle: { fontSize: 14, color: '#705849', marginTop: 5, marginBottom: 25 },
   historyBox: { backgroundColor: '#EBE5DA', borderRadius: 15, padding: 15, marginBottom: 25 },

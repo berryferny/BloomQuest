@@ -1,17 +1,16 @@
-import BQLogo from '@/components/BQLogo';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { Alert, Modal, SafeAreaView, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 import BackButton from '../components/BackButton';
+import BQLogo from '../components/BQLogo';
 import { addHabit, updateHabit } from '../store/habitsSlice';
 
 const DAYS_OF_WEEK = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'];
 const HOURS = ['01','02','03','04','05','06','07','08','09','10','11','12'];
-const MINUTES = ['00','15','30','45'];
+const MINUTES = ['00','05','10','15','20','25','30','35','40','45','50','55'];
 
 export default function CreateHabitScreen() {
-  // 1. Detectamos si venimos a editar
   const { id } = useLocalSearchParams();
   const { habits } = useSelector((state: any) => state.habits);
   const existingHabit = habits.find((h: any) => h.id === id);
@@ -28,7 +27,6 @@ export default function CreateHabitScreen() {
 
   const dispatch = useDispatch();
 
-  // 2. Si venimos a editar, llenamos los campos automáticamente
   useEffect(() => {
     if (existingHabit) {
       setHabitName(existingHabit.name);
@@ -63,15 +61,8 @@ export default function CreateHabitScreen() {
     setLoading(true);
 
     if (existingHabit) {
-      // Si estamos editando, actualizamos
-      dispatch(updateHabit({ 
-        id: existingHabit.id, 
-        name: habitName, 
-        days: selectedDays, 
-        time: selectedTime 
-      }));
+      dispatch(updateHabit({ id: existingHabit.id, name: habitName, days: selectedDays, time: selectedTime }));
     } else {
-      // Si es nuevo, lo agregamos
       dispatch(addHabit({
         id: Date.now().toString(),
         name: habitName,
@@ -92,8 +83,7 @@ export default function CreateHabitScreen() {
       </View>
 
       <ScrollView contentContainerStyle={styles.scrollContent}>
-        <BQLogo />
-        {/* 3. Título dinámico */}
+        <BQLogo size={40} />
         <Text style={styles.title}>{existingHabit ? 'Editar hábito' : 'Nuevo hábito'}</Text>
         <Text style={styles.subtitle}>{existingHabit ? 'Ajusta tus detalles' : 'Construye una rutina a tu ritmo'}</Text>
         
@@ -142,29 +132,32 @@ export default function CreateHabitScreen() {
             <Text style={styles.modalTitle}>Selecciona la hora</Text>
             
             <View style={styles.timeSelectorRow}>
-              <View style={styles.timeColumn}>
+              {/* HORAS CON SCROLLVIEW */}
+              <ScrollView style={styles.timeColumn} showsVerticalScrollIndicator={false}>
                 {HOURS.map(h => (
                   <TouchableOpacity key={h} onPress={() => setTempHour(h)} style={[styles.timeOption, tempHour === h && styles.timeOptionActive]}>
                     <Text style={[styles.timeOptionText, tempHour === h && styles.timeOptionTextActive]}>{h}</Text>
                   </TouchableOpacity>
                 ))}
-              </View>
+              </ScrollView>
               
-              <View style={styles.timeColumn}>
+              {/* MINUTOS CON SCROLLVIEW */}
+              <ScrollView style={styles.timeColumn} showsVerticalScrollIndicator={false}>
                 {MINUTES.map(m => (
                   <TouchableOpacity key={m} onPress={() => setTempMinute(m)} style={[styles.timeOption, tempMinute === m && styles.timeOptionActive]}>
                     <Text style={[styles.timeOptionText, tempMinute === m && styles.timeOptionTextActive]}>{m}</Text>
                   </TouchableOpacity>
                 ))}
-              </View>
+              </ScrollView>
 
-              <View style={styles.timeColumn}>
+              {/* AM/PM CON SCROLLVIEW */}
+              <ScrollView style={styles.timeColumn} showsVerticalScrollIndicator={false}>
                 {['AM', 'PM'].map(ap => (
                   <TouchableOpacity key={ap} onPress={() => setTempAmPm(ap)} style={[styles.timeOption, tempAmPm === ap && styles.timeOptionActive]}>
                     <Text style={[styles.timeOptionText, tempAmPm === ap && styles.timeOptionTextActive]}>{ap}</Text>
                   </TouchableOpacity>
                 ))}
-              </View>
+              </ScrollView>
             </View>
 
             <TouchableOpacity style={styles.closeButton} onPress={saveTime}>
@@ -182,7 +175,6 @@ const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#F8F5EF' },
   header: { paddingHorizontal: 10, paddingTop: 10 },
   scrollContent: { padding: 20, paddingBottom: 40 },
-  logoText: { fontSize: 32, fontWeight: 'bold', color: '#342F29', marginBottom: 10 },
   title: { fontSize: 24, fontWeight: 'bold', color: '#342F29' },
   subtitle: { fontSize: 14, color: '#705849', marginTop: 5, marginBottom: 30 },
   formContainer: { marginBottom: 30 },
@@ -197,15 +189,19 @@ const styles = StyleSheet.create({
   inputText: { fontSize: 16, color: '#342F29' },
   button: { backgroundColor: '#705849', padding: 15, borderRadius: 10, alignItems: 'center' },
   buttonText: { color: '#F8F5EF', fontSize: 16, fontWeight: 'bold' },
+  
   modalOverlay: { flex: 1, backgroundColor: 'rgba(52, 47, 41, 0.7)', justifyContent: 'flex-end' },
-  modalContent: { backgroundColor: '#F8F5EF', borderTopLeftRadius: 30, borderTopRightRadius: 30, padding: 25, minHeight: 350 },
+  modalContent: { backgroundColor: '#F8F5EF', borderTopLeftRadius: 30, borderTopRightRadius: 30, padding: 25, minHeight: 380 },
   modalTitle: { fontSize: 22, fontWeight: 'bold', color: '#342F29', marginBottom: 20, textAlign: 'center' },
-  timeSelectorRow: { flexDirection: 'row', justifyContent: 'space-around', height: 150 },
-  timeColumn: { alignItems: 'center', overflow: 'hidden' },
-  timeOption: { paddingVertical: 8, paddingHorizontal: 15, borderRadius: 8, marginBottom: 2 },
+  
+  // Ajustamos los estilos del selector de hora
+  timeSelectorRow: { flexDirection: 'row', justifyContent: 'space-around', height: 160, marginBottom: 10 },
+  timeColumn: { maxHeight: 150, width: '30%' }, 
+  timeOption: { paddingVertical: 10, alignItems: 'center', borderRadius: 8, marginBottom: 2 },
   timeOptionActive: { backgroundColor: '#EBE5DA' },
-  timeOptionText: { fontSize: 16, color: '#705849' },
+  timeOptionText: { fontSize: 18, color: '#705849' },
   timeOptionTextActive: { color: '#342F29', fontWeight: 'bold' },
-  closeButton: { backgroundColor: '#705849', padding: 15, borderRadius: 10, alignItems: 'center', marginTop: 20 },
+  
+  closeButton: { backgroundColor: '#705849', padding: 15, borderRadius: 10, alignItems: 'center', marginTop: 10 },
   closeButtonText: { color: '#F8F5EF', fontSize: 16, fontWeight: 'bold' },
 });

@@ -2,7 +2,7 @@ import { router } from 'expo-router';
 import { useState } from 'react';
 import { Alert, KeyboardAvoidingView, Platform, SafeAreaView, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import BackButton from '../components/BackButton';
-import { supabase } from '../lib/supabase'; // <-- IMPORTANTE
+import { supabase } from '../lib/supabase';
 
 export default function RegisterScreen() {
   const [name, setName] = useState('');
@@ -12,12 +12,23 @@ export default function RegisterScreen() {
   const [loading, setLoading] = useState(false);
 
   const handleRegister = async () => {
+    // Validaciones
     if (!name || !email || !password) {
       Alert.alert('Error', 'Por favor llena todos los campos');
       return;
     }
+    if (password.length < 6) {
+      Alert.alert('Error', 'La contraseña debe tener al menos 6 caracteres');
+      return;
+    }
     if (password !== confirmPassword) {
       Alert.alert('Error', 'Las contraseñas no coinciden');
+      return;
+    }
+    // Validación básica de correo
+    const emailRegex = /\S+@\S+\.\S+/;
+    if (!emailRegex.test(email)) {
+      Alert.alert('Error', 'Por favor ingresa un correo electrónico válido');
       return;
     }
 
@@ -51,7 +62,7 @@ export default function RegisterScreen() {
             <Text style={styles.label}>Correo electrónico</Text>
             <TextInput style={styles.input} value={email} onChangeText={setEmail} placeholder="ejemplo@correo.com" placeholderTextColor="#9BAA91" keyboardType="email-address" autoCapitalize="none" />
             <Text style={styles.label}>Contraseña</Text>
-            <TextInput style={styles.input} value={password} onChangeText={setPassword} placeholder="••••••••" placeholderTextColor="#9BAA91" secureTextEntry />
+            <TextInput style={styles.input} value={password} onChangeText={setPassword} placeholder="Mínimo 6 caracteres" placeholderTextColor="#9BAA91" secureTextEntry />
             <Text style={styles.label}>Confirmar contraseña</Text>
             <TextInput style={styles.input} value={confirmPassword} onChangeText={setConfirmPassword} placeholder="••••••••" placeholderTextColor="#9BAA91" secureTextEntry />
             <TouchableOpacity style={styles.button} onPress={handleRegister} disabled={loading}>

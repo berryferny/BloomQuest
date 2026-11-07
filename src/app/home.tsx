@@ -4,26 +4,37 @@ import { useEffect } from 'react';
 import { SafeAreaView, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 import BottomNav from '../components/BottomNav';
-import { fetchHabitsFromDb } from '../lib/habitsDb';
-import { checkDailyStreak, resetHabitsDaily, setHabitsFromDb, toggleHabit } from '../store/habitsSlice';
+import { fetchHabitsFromDb, fetchProfileFromDb, syncProfileToDb } from '../lib/habitsDb';
+import { checkDailyStreak, resetHabitsDaily, setHabitsFromDb, setProfile, toggleHabit } from '../store/habitsSlice';
 
 export default function HomeScreen() {
-  const { habits = [], coins = 0, streak = 0, userName = 'Persona Bloom' } = useSelector((state: any) => state.habits);
+  const { habits = [], coins = 0, streak = 0, userName = 'Persona Bloom', garden = [], seedInventory = [], lastLoginDate = null } = useSelector((state: any) => state.habits);
   const dispatch = useDispatch();
 
+  // 1. Cargar datos desde la nube al iniciar
   useEffect(() => {
-    // Esta función va a Supabase, trae los hábitos y los pone en Redux
-    const loadHabits = async () => {
+    const loadData = async () => {
       const dbHabits = await fetchHabitsFromDb();
-      if (dbHabits.length > 0) {
-        dispatch(setHabitsFromDb(dbHabits));
+      if (dbHabits.length > 0) dispatch(setHabitsFromDb(dbHabits));
+
+      const dbProfile = await fetchProfileFromDb();
+      if (dbProfile) {
+        dispatch(setProfile(dbProfile));
       }
     };
 
-    loadHabits();
+    loadData();
     dispatch(checkDailyStreak());
     dispatch(resetHabitsDaily());
   }, [dispatch]);
+
+  // 2. Sincronizar con la nube cuando cambien las monedas, jardín o inventario
+  useEffect(() => {
+    // Solo sincronizamos si ya hay datos cargados (evitar borrar la nube al inicio)
+    if (coins !== undefined) {
+      syncProfileToDb(coins, garden, seedInventory, streak, lastLoginDate);
+    }
+  }, [coins, garden, seedInventory, streak]);
 
   const totalHabits = habits.length;
   const completedHabits = habits.filter((h: any) => h.completed).length;
@@ -33,7 +44,6 @@ export default function HomeScreen() {
     <SafeAreaView style={styles.container}>
       <ScrollView contentContainerStyle={styles.scrollContent}>
         
-        {/* Encabezado */}
         <View style={styles.header}>
           <View style={styles.headerTop}>
             <Text style={styles.logoText}>BQ</Text>
@@ -45,7 +55,6 @@ export default function HomeScreen() {
           <Text style={styles.subtitle}>Hoy es un buen día para seguir creciendo.</Text>
         </View>
 
-        {/* Tarjeta de Progreso */}
         <View style={styles.progressCard}>
           <Text style={styles.progressTitle}>Tu progreso de hoy</Text>
           <View style={styles.progressRow}>
@@ -57,7 +66,6 @@ export default function HomeScreen() {
           </View>
         </View>
 
-        {/* Lista de Hábitos Rápida */}
         <Text style={styles.sectionTitle}>Tus hábitos</Text>
         {habits.length === 0 ? (
           <Text style={styles.emptyText}>No tienes hábitos aún.</Text>
@@ -80,7 +88,6 @@ export default function HomeScreen() {
           ))
         )}
 
-        {/* Botón Crear Hábito */}
         <TouchableOpacity style={styles.createButton} onPress={() => router.push('/create-habit')}>
           <Text style={styles.createButtonText}>+ Crear hábito</Text>
         </TouchableOpacity>
@@ -94,57 +101,25 @@ export default function HomeScreen() {
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#F8F5EF' },
   scrollContent: { padding: 20, paddingBottom: 40 },
-  
   header: { marginBottom: 20 },
   headerTop: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 },
   logoText: { fontSize: 32, fontWeight: 'bold', color: '#342F29' },
-  streakBadge: {
-    backgroundColor: '#EBE5DA',
-    paddingHorizontal: 15,
-    paddingVertical: 8,
-    borderRadius: 20,
-    borderWidth: 1,
-    borderColor: '#D3C9BD',
-  },
+  streakBadge: { backgroundColor: '#EBE5DA', paddingHorizontal: 15, paddingVertical: 8, borderRadius: 20, borderWidth: 1, borderColor: '#D3C9BD' },
   streakText: { fontSize: 16, fontWeight: 'bold', color: '#705849' },
   greeting: { fontSize: 24, fontWeight: 'bold', color: '#342F29' },
   subtitle: { fontSize: 14, color: '#705849', marginTop: 5 },
-  
-  progressCard: {
-    backgroundColor: '#EBE5DA',
-    padding: 20,
-    borderRadius: 15,
-    marginBottom: 20,
-  },
+  progressCard: { backgroundColor: '#EBE5DA', padding: 20, borderRadius: 15, marginBottom: 20 },
   progressTitle: { fontSize: 16, fontWeight: 'bold', color: '#342F29', marginBottom: 10 },
   progressRow: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 10 },
   progressStats: { fontSize: 14, color: '#705849' },
   progressPercent: { fontSize: 14, fontWeight: 'bold', color: '#705849' },
   progressBarBackground: { height: 8, backgroundColor: '#D3C9BD', borderRadius: 4 },
   progressBarFill: { height: 8, backgroundColor: '#705849', borderRadius: 4 },
-
   sectionTitle: { fontSize: 18, fontWeight: 'bold', color: '#342F29', marginBottom: 15 },
   emptyText: { color: '#705849', fontStyle: 'italic', marginBottom: 15 },
-  
-  habitItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#FFFFFF',
-    padding: 15,
-    borderRadius: 10,
-    marginBottom: 10,
-    borderWidth: 1,
-    borderColor: '#EBE5DA',
-  },
+  habitItem: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#FFFFFF', padding: 15, borderRadius: 10, marginBottom: 10, borderWidth: 1, borderColor: '#EBE5DA' },
   habitText: { fontSize: 16, color: '#342F29', marginLeft: 15 },
   habitCompleted: { textDecorationLine: 'line-through', color: '#9BAA91' },
-
-  createButton: {
-    backgroundColor: '#705849',
-    padding: 15,
-    borderRadius: 10,
-    alignItems: 'center',
-    marginTop: 10,
-  },
+  createButton: { backgroundColor: '#705849', padding: 15, borderRadius: 10, alignItems: 'center', marginTop: 10 },
   createButtonText: { color: '#F8F5EF', fontSize: 16, fontWeight: 'bold' },
 });

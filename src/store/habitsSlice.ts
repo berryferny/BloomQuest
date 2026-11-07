@@ -1,14 +1,7 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { addHabitToDb, deleteHabitFromDb, toggleHabitInDb, updateHabitInDb } from '../lib/habitsDb';
 
-export interface Habit { 
-  id: string; 
-  name: string; 
-  completed: boolean; 
-  days: string[]; 
-  time: string;
-}
-
+export interface Habit { id: string; name: string; completed: boolean; days: string[]; time: string; }
 interface MoodEntry { date: string; mood: string; emoji: string; }
 export interface Plant { id: string; type: string; emoji: string; stage: number; maxStage: number; isBloomed: boolean; lastWateredDate?: string; }
 
@@ -26,36 +19,31 @@ interface HabitsState {
 }
 
 const initialState: HabitsState = {
-  habits: [],
-  coins: 100, 
-  seedInventory: [],
-  garden: [null, null, null, null, null, null], 
-  completedMissions: [],
-  moodHistory: [],
-  streak: 0,
-  lastLoginDate: null,
-  userName: 'Persona Bloom',
-  lastHabitResetDate: null,
+  habits: [], coins: 100, seedInventory: [], garden: [null, null, null, null, null, null], completedMissions: [], moodHistory: [], streak: 0, lastLoginDate: null, userName: 'Persona Bloom', lastHabitResetDate: null,
 };
 
 const habitsSlice = createSlice({
   name: 'habits',
   initialState,
   reducers: {
-    setHabitsFromDb: (state, action) => {
-      state.habits = action.payload;
+    setHabitsFromDb: (state, action) => { state.habits = action.payload; },
+    
+    // NUEVA ACCIÓN: Cargar perfil desde la nube
+    setProfile: (state, action) => {
+      if (action.payload) {
+        state.coins = action.payload.coins;
+        state.seedInventory = action.payload.inventory || [];
+        state.garden = action.payload.garden || [null, null, null, null, null, null];
+        state.streak = action.payload.streak;
+        state.lastLoginDate = action.payload.last_login_date;
+      }
     },
-    addHabit: (state, action: PayloadAction<Habit>) => { 
-      state.habits.push(action.payload); 
-      addHabitToDb(action.payload); 
-    },
-    // NUEVA ACCIÓN: Actualizar Hábito
+
+    addHabit: (state, action: PayloadAction<Habit>) => { state.habits.push(action.payload); addHabitToDb(action.payload); },
     updateHabit: (state, action: PayloadAction<{ id: string, name: string, days: string[], time: string }>) => {
       const habit = state.habits.find((h) => h.id === action.payload.id);
       if (habit) {
-        habit.name = action.payload.name;
-        habit.days = action.payload.days;
-        habit.time = action.payload.time;
+        habit.name = action.payload.name; habit.days = action.payload.days; habit.time = action.payload.time;
         updateHabitInDb(action.payload.id, action.payload.name, action.payload.days, action.payload.time);
       }
     },
@@ -67,16 +55,10 @@ const habitsSlice = createSlice({
         toggleHabitInDb(habit.id, habit.completed); 
       }
     },
-    deleteHabit: (state, action) => { 
-      state.habits = state.habits.filter((h) => h.id !== action.payload); 
-      deleteHabitFromDb(action.payload); 
-    },
+    deleteHabit: (state, action) => { state.habits = state.habits.filter((h) => h.id !== action.payload); deleteHabitFromDb(action.payload); },
     resetHabitsDaily: (state) => {
       const today = new Date().toDateString();
-      if (state.lastHabitResetDate !== today) {
-        state.habits.forEach((h) => { h.completed = false; });
-        state.lastHabitResetDate = today;
-      }
+      if (state.lastHabitResetDate !== today) { state.habits.forEach((h) => { h.completed = false; }); state.lastHabitResetDate = today; }
     },
     buySeed: (state, action: PayloadAction<{ type: string; price: number }>) => {
       if (state.coins >= action.payload.price) {
@@ -107,10 +89,7 @@ const habitsSlice = createSlice({
     },
     completeMission: (state, action) => {
       if (!state.completedMissions) state.completedMissions = [];
-      if (!state.completedMissions.includes(action.payload.missionId)) {
-        state.completedMissions.push(action.payload.missionId);
-        state.coins += action.payload.reward;
-      }
+      if (!state.completedMissions.includes(action.payload.missionId)) { state.completedMissions.push(action.payload.missionId); state.coins += action.payload.reward; }
     },
     addMood: (state, action) => {
       if (!state.moodHistory) state.moodHistory = [];
@@ -132,7 +111,7 @@ const habitsSlice = createSlice({
 });
 
 export const { 
-  setHabitsFromDb, addHabit, updateHabit, toggleHabit, deleteHabit, resetHabitsDaily, 
+  setHabitsFromDb, setProfile, addHabit, updateHabit, toggleHabit, deleteHabit, resetHabitsDaily, 
   buySeed, plantSeed, waterPlant, completeMission, addMood, addCoins, checkDailyStreak, setUserName 
 } = habitsSlice.actions;
 

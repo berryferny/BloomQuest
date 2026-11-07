@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { Alert, KeyboardAvoidingView, Platform, SafeAreaView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 import BackButton from '../components/BackButton';
+import { supabase } from '../lib/supabase'; // <-- IMPORTANTE
 import { setUserName } from '../store/habitsSlice';
 
 export default function PersonalDataScreen() {
@@ -10,15 +11,29 @@ export default function PersonalDataScreen() {
   const dispatch = useDispatch();
   
   const [name, setName] = useState(userName);
-  const [email, setEmail] = useState('ejemplo@correo.com'); // Simulado
+  const [email, setEmail] = useState('ejemplo@correo.com'); 
+  const [loading, setLoading] = useState(false);
 
-  const handleSave = () => {
+  const handleSave = async () => {
     if (name.trim() === '') {
       Alert.alert("Error", "El nombre no puede estar vacío.");
       return;
     }
-    dispatch(setUserName(name));
-    router.back();
+
+    setLoading(true);
+    // Actualizamos el nombre en los metadatos de Supabase
+    const { error } = await supabase.auth.updateUser({
+      data: { full_name: name }
+    });
+    setLoading(false);
+
+    if (error) {
+      Alert.alert("Error", error.message);
+    } else {
+      dispatch(setUserName(name)); // Lo actualizamos en Redux
+      Alert.alert("¡Éxito!", "Tus datos se han actualizado.");
+      router.back();
+    }
   };
 
   return (
@@ -47,13 +62,13 @@ export default function PersonalDataScreen() {
             <TextInput
               style={[styles.input, { backgroundColor: '#EBE5DA', color: '#705849' }]}
               value={email}
-              editable={false} // Bloqueado por ahora
+              editable={false} 
             />
             <Text style={styles.helperText}>El correo no se puede cambiar por ahora.</Text>
           </View>
 
-          <TouchableOpacity style={styles.button} onPress={handleSave}>
-            <Text style={styles.buttonText}>Guardar cambios</Text>
+          <TouchableOpacity style={styles.button} onPress={handleSave} disabled={loading}>
+            <Text style={styles.buttonText}>{loading ? 'Guardando...' : 'Guardar cambios'}</Text>
           </TouchableOpacity>
         </View>
       </KeyboardAvoidingView>
@@ -68,26 +83,10 @@ const styles = StyleSheet.create({
   logoText: { fontSize: 32, fontWeight: 'bold', color: '#342F29', marginBottom: 10 },
   title: { fontSize: 24, fontWeight: 'bold', color: '#342F29' },
   subtitle: { fontSize: 14, color: '#705849', marginTop: 5, marginBottom: 30 },
-  
   formContainer: { marginBottom: 30 },
   label: { fontSize: 14, fontWeight: 'bold', color: '#705849', marginBottom: 8 },
-  input: {
-    backgroundColor: '#FFFFFF',
-    borderWidth: 1,
-    borderColor: '#EBE5DA',
-    borderRadius: 10,
-    padding: 15,
-    fontSize: 16,
-    color: '#342F29',
-    marginBottom: 15,
-  },
+  input: { backgroundColor: '#FFFFFF', borderWidth: 1, borderColor: '#EBE5DA', borderRadius: 10, padding: 15, fontSize: 16, color: '#342F29', marginBottom: 15 },
   helperText: { fontSize: 12, color: '#9BAA91', fontStyle: 'italic' },
-
-  button: {
-    backgroundColor: '#705849',
-    padding: 15,
-    borderRadius: 10,
-    alignItems: 'center',
-  },
+  button: { backgroundColor: '#705849', padding: 15, borderRadius: 10, alignItems: 'center' },
   buttonText: { color: '#F8F5EF', fontSize: 16, fontWeight: 'bold' },
 });

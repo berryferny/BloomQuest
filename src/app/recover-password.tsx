@@ -1,14 +1,28 @@
 import { router } from 'expo-router';
 import { useState } from 'react';
-import { KeyboardAvoidingView, Platform, SafeAreaView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { Alert, KeyboardAvoidingView, Platform, SafeAreaView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import BackButton from '../components/BackButton';
+import { supabase } from '../lib/supabase'; // <-- IMPORTANTE
 
 export default function RecoverPasswordScreen() {
   const [email, setEmail] = useState('');
   const [sent, setSent] = useState(false);
+  const [loading, setLoading] = useState(false);
 
-  const handleSend = () => {
-    if (email.trim() !== '') {
+  const handleSend = async () => {
+    if (email.trim() === '') {
+      Alert.alert('Error', 'Por favor ingresa tu correo.');
+      return;
+    }
+    
+    setLoading(true);
+    // Llamamos a Supabase para que envíe el correo
+    const { error } = await supabase.auth.resetPasswordForEmail(email);
+    setLoading(false);
+
+    if (error) {
+      Alert.alert('Error', error.message);
+    } else {
       setSent(true);
     }
   };
@@ -44,8 +58,8 @@ export default function RecoverPasswordScreen() {
                 keyboardType="email-address" 
                 autoCapitalize="none" 
               />
-              <TouchableOpacity style={styles.button} onPress={handleSend}>
-                <Text style={styles.buttonText}>Enviar instrucciones</Text>
+              <TouchableOpacity style={styles.button} onPress={handleSend} disabled={loading}>
+                <Text style={styles.buttonText}>{loading ? 'Enviando...' : 'Enviar instrucciones'}</Text>
               </TouchableOpacity>
             </View>
           )}

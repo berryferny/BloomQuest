@@ -1,7 +1,7 @@
 import { router } from 'expo-router';
 import { SafeAreaView, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { useDispatch } from 'react-redux';
-import BackButton from '../components/BackButton';
+import BackButton from '../components/BackButton'; // <-- IMPORTANTE
 import { addMood } from '../store/habitsSlice';
 
 const EMOTIONS = [
@@ -17,14 +17,16 @@ export default function MoodScreen() {
 
   const handleSave = (mood: string, emoji: string) => {
     dispatch(addMood({ mood, emoji }));
-    router.push('/mood-history'); // Lo enviamos directo al historial tras guardar
+    router.push('/mood-history'); 
   };
 
   return (
     <SafeAreaView style={styles.container}>
+      {/* AQUÍ ESTÁ EL BOTÓN DE REGRESAR */}
       <View style={styles.header}>
         <BackButton />
       </View>
+
       <ScrollView contentContainerStyle={styles.scrollContent}>
         <Text style={styles.logoText}>BQ</Text>
         <Text style={styles.title}>¿Cómo me siento hoy?</Text>

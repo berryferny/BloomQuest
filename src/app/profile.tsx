@@ -1,3 +1,4 @@
+import BQLogo from '@/components/BQLogo';
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import { Alert, Platform, SafeAreaView, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
@@ -47,7 +48,7 @@ export default function ProfileScreen() {
     <SafeAreaView style={styles.container}>
       <ScrollView contentContainerStyle={styles.scrollContent}>
         
-        <Text style={styles.logoText}>BQ</Text>
+        <BQLogo />
         <Text style={styles.title}>Mi perfil</Text>
         <Text style={styles.subtitle}>Tu recorrido y tus logros.</Text>
 

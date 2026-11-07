@@ -1,3 +1,4 @@
+import BQLogo from '@/components/BQLogo';
 import { router } from 'expo-router';
 import { useEffect, useRef, useState } from 'react';
 import { Animated, SafeAreaView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
@@ -44,7 +45,7 @@ export default function BreatheScreen() {
       </View>
 
       <View style={styles.content}>
-        <Text style={styles.logoText}>BQ</Text>
+        <BQLogo />
         <Text style={styles.title}>Tu momento de calma</Text>
         <Text style={styles.subtitle}>Inhala 4s · Exhala 4s</Text>
 

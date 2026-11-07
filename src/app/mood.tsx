@@ -1,3 +1,4 @@
+import BQLogo from '@/components/BQLogo';
 import { router } from 'expo-router';
 import { SafeAreaView, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { useDispatch } from 'react-redux';
@@ -28,7 +29,7 @@ export default function MoodScreen() {
       </View>
 
       <ScrollView contentContainerStyle={styles.scrollContent}>
-        <Text style={styles.logoText}>BQ</Text>
+        <BQLogo />
         <Text style={styles.title}>¿Cómo me siento hoy?</Text>
         <Text style={styles.subtitle}>No hay respuestas incorrectas.</Text>
 

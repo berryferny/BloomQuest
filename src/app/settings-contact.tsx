@@ -1,3 +1,4 @@
+import BQLogo from '@/components/BQLogo';
 import { useState } from 'react';
 import { KeyboardAvoidingView, Platform, SafeAreaView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import BackButton from '../components/BackButton';
@@ -26,7 +27,7 @@ export default function ContactScreen() {
 
       <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
         <View style={styles.content}>
-          <Text style={styles.logoText}>BQ</Text>
+          <BQLogo />
           <Text style={styles.title}>Contacto</Text>
           <Text style={styles.subtitle}>Cuéntanos cómo podemos ayudarte.</Text>
 

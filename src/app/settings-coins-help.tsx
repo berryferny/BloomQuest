@@ -1,3 +1,4 @@
+import BQLogo from '@/components/BQLogo';
 import { SafeAreaView, ScrollView, StyleSheet, Text, View } from 'react-native';
 import BackButton from '../components/BackButton';
 
@@ -6,7 +7,7 @@ export default function CoinsHelpScreen() {
     <SafeAreaView style={styles.container}>
       <View style={styles.header}><BackButton /></View>
       <ScrollView contentContainerStyle={styles.scrollContent}>
-        <Text style={styles.logoText}>BQ</Text>
+        <BQLogo />
         <Text style={styles.title}>Cómo funcionan las monedas</Text>
         <Text style={styles.subtitle}>Hábitos, juegos y recompensas.</Text>
 

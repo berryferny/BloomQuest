@@ -1,3 +1,4 @@
+import BQLogo from '@/components/BQLogo';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { Alert, Modal, SafeAreaView, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
@@ -91,7 +92,7 @@ export default function CreateHabitScreen() {
       </View>
 
       <ScrollView contentContainerStyle={styles.scrollContent}>
-        <Text style={styles.logoText}>BQ</Text>
+        <BQLogo />
         {/* 3. Título dinámico */}
         <Text style={styles.title}>{existingHabit ? 'Editar hábito' : 'Nuevo hábito'}</Text>
         <Text style={styles.subtitle}>{existingHabit ? 'Ajusta tus detalles' : 'Construye una rutina a tu ritmo'}</Text>

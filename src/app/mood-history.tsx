@@ -1,3 +1,4 @@
+import BQLogo from '@/components/BQLogo';
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import { useState } from 'react';
@@ -25,7 +26,7 @@ export default function MoodHistoryScreen() {
         <BackButton />
       </View>
       <ScrollView contentContainerStyle={styles.scrollContent}>
-        <Text style={styles.logoText}>BQ</Text>
+        <BQLogo />
         <Text style={styles.title}>Mi historial emocional</Text>
         <Text style={styles.subtitle}>Observa cómo cambian tus días.</Text>
 

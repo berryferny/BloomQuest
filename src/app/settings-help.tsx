@@ -1,3 +1,4 @@
+import BQLogo from '@/components/BQLogo';
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import { SafeAreaView, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
@@ -8,7 +9,7 @@ export default function HelpSettingsScreen() {
     <SafeAreaView style={styles.container}>
       <View style={styles.header}><BackButton /></View>
       <ScrollView contentContainerStyle={styles.scrollContent}>
-        <Text style={styles.logoText}>BQ</Text>
+        <BQLogo />
         <Text style={styles.title}>Ayuda</Text>
         <Text style={styles.subtitle}>Estamos aquí para orientarte.</Text>
 

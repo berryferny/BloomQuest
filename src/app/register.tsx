@@ -1,6 +1,6 @@
 import { router } from 'expo-router';
 import { useState } from 'react';
-import { Alert, KeyboardAvoidingView, Platform, SafeAreaView, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { Alert, Image, KeyboardAvoidingView, Platform, SafeAreaView, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'; // <-- Agregamos Image
 import BackButton from '../components/BackButton';
 import { supabase } from '../lib/supabase';
 
@@ -12,7 +12,6 @@ export default function RegisterScreen() {
   const [loading, setLoading] = useState(false);
 
   const handleRegister = async () => {
-    // Validaciones
     if (!name || !email || !password) {
       Alert.alert('Error', 'Por favor llena todos los campos');
       return;
@@ -25,7 +24,6 @@ export default function RegisterScreen() {
       Alert.alert('Error', 'Las contraseñas no coinciden');
       return;
     }
-    // Validación básica de correo
     const emailRegex = /\S+@\S+\.\S+/;
     if (!emailRegex.test(email)) {
       Alert.alert('Error', 'Por favor ingresa un correo electrónico válido');
@@ -53,7 +51,14 @@ export default function RegisterScreen() {
       <View style={styles.header}><BackButton /></View>
       <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
         <ScrollView contentContainerStyle={styles.scrollContent}>
-          <Text style={styles.logoText}>BQ</Text>
+          
+          {/* AQUÍ CAMBIAMOS EL TEXTO POR LA IMAGEN */}
+          <Image 
+            source={require('../../assets/images/logo-bq.png')} 
+            style={styles.logoImage} 
+            resizeMode="contain"
+          />
+
           <Text style={styles.title}>Crear cuenta</Text>
           <Text style={styles.subtitle}>¡Comienza a florecer con nosotros!</Text>
           <View style={styles.form}>
@@ -82,7 +87,14 @@ const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#F8F5EF' },
   header: { paddingHorizontal: 10, paddingTop: 10 },
   scrollContent: { padding: 20, paddingBottom: 40 },
-  logoText: { fontSize: 32, fontWeight: 'bold', color: '#342F29', marginBottom: 10 },
+  
+  // NUEVO ESTILO PARA LA IMAGEN
+  logoImage: {
+    width: 60,
+    height: 60,
+    marginBottom: 10,
+  },
+
   title: { fontSize: 24, fontWeight: 'bold', color: '#342F29' },
   subtitle: { fontSize: 14, color: '#705849', marginTop: 5, marginBottom: 25 },
   form: { width: '100%' },

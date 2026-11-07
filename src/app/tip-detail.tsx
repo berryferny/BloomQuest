@@ -1,3 +1,4 @@
+import BQLogo from '@/components/BQLogo';
 import { useLocalSearchParams } from 'expo-router';
 import { SafeAreaView, ScrollView, StyleSheet, Text, View } from 'react-native';
 import BackButton from '../components/BackButton';
@@ -13,7 +14,7 @@ export default function TipDetailScreen() {
       </View>
 
       <ScrollView contentContainerStyle={styles.scrollContent}>
-        <Text style={styles.logoText}>BQ</Text>
+        <BQLogo />
         
         <View style={styles.titleRow}>
           <Text style={styles.emoji}>{icon}</Text>

@@ -1,3 +1,4 @@
+import BQLogo from '@/components/BQLogo';
 import { router } from 'expo-router';
 import { SafeAreaView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import BackButton from '../components/BackButton';
@@ -9,7 +10,7 @@ export default function DeleteAccountScreen() {
         <BackButton />
       </View>
       <View style={styles.content}>
-        <Text style={styles.logoText}>BQ</Text>
+        <BQLogo />
         <Text style={styles.title}>Eliminar cuenta</Text>
         <Text style={styles.subtitle}>Pantalla demostrativa · no elimina datos</Text>
 

@@ -1,6 +1,6 @@
 import { router } from 'expo-router';
 import { useState } from 'react';
-import { Alert, KeyboardAvoidingView, Platform, SafeAreaView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { Alert, Image, KeyboardAvoidingView, Platform, SafeAreaView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'; // <-- Agregamos Image
 import { useDispatch } from 'react-redux';
 import { supabase } from '../lib/supabase';
 import { setUserName } from '../store/habitsSlice';
@@ -23,7 +23,6 @@ export default function LoginScreen() {
     if (error) {
       Alert.alert('Error de inicio de sesión', error.message);
     } else {
-      // Extraemos el nombre de los metadatos del usuario
       const userName = data.user?.user_metadata?.full_name || 'Persona Bloom';
       dispatch(setUserName(userName));
       router.replace('/home');
@@ -35,7 +34,14 @@ export default function LoginScreen() {
     <SafeAreaView style={styles.container}>
       <KeyboardAvoidingView style={styles.keyboardView} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
         <View style={styles.content}>
-          <Text style={styles.logo}>BloomQuest</Text>
+          
+          {/* AQUÍ ESTÁ LA MAGIA: La imagen en vez del texto */}
+          <Image 
+            source={require('../../assets/images/logo-bloomquest.png')} 
+            style={styles.logoImage} 
+            resizeMode="contain"
+          />
+          
           <Text style={styles.slogan}>Pequeños hábitos, grandes cambios.</Text>
           <Text style={styles.title}>¡Hola de nuevo!</Text>
 
@@ -68,7 +74,15 @@ const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#F8F5EF' },
   keyboardView: { flex: 1 },
   content: { flex: 1, padding: 30, justifyContent: 'center' },
-  logo: { fontSize: 40, fontWeight: 'bold', color: '#342F29', textAlign: 'center', marginBottom: 5, fontFamily: 'serif' },
+  
+  // NUEVOS ESTILOS PARA LA IMAGEN
+  logoImage: {
+    width: 280,
+    height: 140,
+    alignSelf: 'center',
+    marginBottom: 5,
+  },
+
   slogan: { fontSize: 14, color: '#705849', textAlign: 'center', marginBottom: 40 },
   title: { fontSize: 24, fontWeight: 'bold', color: '#342F29', marginBottom: 20 },
   form: { width: '100%' },

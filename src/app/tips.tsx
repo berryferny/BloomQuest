@@ -1,3 +1,4 @@
+import BQLogo from '@/components/BQLogo';
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import { SafeAreaView, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
@@ -18,7 +19,7 @@ export default function TipsScreen() {
       </View>
 
       <ScrollView contentContainerStyle={styles.scrollContent}>
-        <Text style={styles.logoText}>BQ</Text>
+        <BQLogo />
         <Text style={styles.title}>Consejos para ti</Text>
         <Text style={styles.subtitle}>Ideas sencillas para florecer.</Text>
 

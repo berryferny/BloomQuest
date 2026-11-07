@@ -1,3 +1,4 @@
+import BQLogo from '@/components/BQLogo';
 import { useState } from 'react';
 import { SafeAreaView, ScrollView, StyleSheet, Switch, Text, View } from 'react-native';
 import BackButton from '../components/BackButton';
@@ -15,7 +16,7 @@ export default function AccessibilitySettingsScreen() {
       </View>
 
       <ScrollView contentContainerStyle={styles.scrollContent}>
-        <Text style={styles.logoText}>BQ</Text>
+        <BQLogo />
         <Text style={styles.title}>Accesibilidad</Text>
         <Text style={styles.subtitle}>Configura una experiencia cómoda.</Text>
 

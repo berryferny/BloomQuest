@@ -1,3 +1,4 @@
+import BQLogo from '@/components/BQLogo';
 import { SafeAreaView, ScrollView, StyleSheet, Text, View } from 'react-native';
 import BackButton from '../components/BackButton';
 
@@ -6,7 +7,7 @@ export default function UsageTipsScreen() {
     <SafeAreaView style={styles.container}>
       <View style={styles.header}><BackButton /></View>
       <ScrollView contentContainerStyle={styles.scrollContent}>
-        <Text style={styles.logoText}>BQ</Text>
+        <BQLogo />
         <Text style={styles.title}>Consejos de uso</Text>
         <Text style={styles.subtitle}>Cómo aprovechar tu jardín.</Text>
 

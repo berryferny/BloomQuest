@@ -1,3 +1,4 @@
+import BQLogo from '@/components/BQLogo';
 import { router } from 'expo-router';
 import { SafeAreaView, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import BackButton from '../components/BackButton';
@@ -10,7 +11,7 @@ export default function SettingsScreen() {
       </View>
 
       <ScrollView contentContainerStyle={styles.scrollContent}>
-        <Text style={styles.logoText}>BQ</Text>
+        <BQLogo />
         <Text style={styles.title}>Configuración</Text>
         <Text style={styles.subtitle}>Personaliza tu experiencia</Text>
 

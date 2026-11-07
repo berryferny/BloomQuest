@@ -1,3 +1,4 @@
+import BQLogo from '@/components/BQLogo';
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import { useState } from 'react';
@@ -22,7 +23,7 @@ export default function HabitsScreen() {
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView contentContainerStyle={styles.scrollContent}>
-        <Text style={styles.logoText}>BQ</Text>
+        <BQLogo />
         <Text style={styles.title}>Mis hábitos</Text>
         <Text style={styles.subtitle}>Pequeños pasos que hacen la diferencia.</Text>
 

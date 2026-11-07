@@ -1,3 +1,4 @@
+import BQLogo from '@/components/BQLogo';
 import { SafeAreaView, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useSelector } from 'react-redux';
 import BackButton from '../components/BackButton';
@@ -33,7 +34,7 @@ export default function StatsScreen() {
         <BackButton />
       </View>
       <ScrollView contentContainerStyle={styles.scrollContent}>
-        <Text style={styles.logoText}>BQ</Text>
+        <BQLogo />
         <Text style={styles.title}>Estadísticas</Text>
         <Text style={styles.subtitle}>Conoce tu evolución.</Text>
 

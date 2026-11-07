@@ -1,3 +1,4 @@
+import BQLogo from '@/components/BQLogo';
 import { router } from 'expo-router';
 import { useState } from 'react';
 import { Alert, KeyboardAvoidingView, Platform, SafeAreaView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
@@ -30,7 +31,7 @@ export default function ResetPasswordScreen() {
     <SafeAreaView style={styles.container}>
       <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
         <View style={styles.content}>
-          <Text style={styles.logoText}>BQ</Text>
+          <BQLogo />
           <Text style={styles.title}>Nueva contraseña</Text>
           <Text style={styles.subtitle}>Ingresa tu nueva clave para BloomQuest.</Text>
 

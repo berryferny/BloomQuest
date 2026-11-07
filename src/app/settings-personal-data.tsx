@@ -1,3 +1,4 @@
+import BQLogo from '@/components/BQLogo';
 import { router } from 'expo-router';
 import { useState } from 'react';
 import { Alert, KeyboardAvoidingView, Platform, SafeAreaView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
@@ -44,7 +45,7 @@ export default function PersonalDataScreen() {
 
       <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
         <View style={styles.content}>
-          <Text style={styles.logoText}>BQ</Text>
+          <BQLogo />
           <Text style={styles.title}>Datos personales</Text>
           <Text style={styles.subtitle}>Tu información en BloomQuest.</Text>
 

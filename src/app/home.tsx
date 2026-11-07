@@ -1,3 +1,4 @@
+import BQLogo from '@/components/BQLogo';
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import { useEffect } from 'react';
@@ -49,7 +50,7 @@ export default function HomeScreen() {
         
         <View style={styles.header}>
           <View style={styles.headerTop}>
-            <Text style={styles.logoText}>BQ</Text>
+            <BQLogo />
             <View style={styles.streakBadge}>
               <Text style={styles.streakText}>🔥 {streak} días</Text>
             </View>

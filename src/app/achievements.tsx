@@ -1,3 +1,4 @@
+import BQLogo from '@/components/BQLogo';
 import { Ionicons } from '@expo/vector-icons';
 import { SafeAreaView, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useSelector } from 'react-redux';
@@ -80,7 +81,7 @@ export default function AchievementsScreen() {
         <BackButton />
       </View>
       <ScrollView contentContainerStyle={styles.scrollContent}>
-        <Text style={styles.logoText}>BQ</Text>
+        <BQLogo />
         <Text style={styles.title}>Mis logros</Text>
         <Text style={styles.subtitle}>Celebra cada avance en tu camino.</Text>
 

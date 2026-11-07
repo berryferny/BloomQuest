@@ -36,13 +36,21 @@ export default function ProfileScreen() {
     ]);
   };
 
-  // Función que guarda el avatar al instante en Redux y Supabase
   const saveAvatarToDb = async (url: string) => {
     dispatch(setAvatarUrl(url));
     setModalVisible(false);
+    
     const { data: { user } } = await supabase.auth.getUser();
     if (user) {
-      await supabase.from('profiles').update({ avatar_url: url }).eq('id', user.id);
+      const { error } = await supabase.from('profiles').upsert({ 
+        id: user.id, 
+        avatar_url: url 
+      });
+      
+      if (error) {
+        console.error("Error al guardar avatar:", error);
+        Alert.alert("Error", "No se pudo guardar la foto en la base de datos.");
+      }
     }
   };
 
@@ -82,7 +90,7 @@ export default function ProfileScreen() {
       if (uploadError) throw uploadError;
 
       const { data } = supabase.storage.from('avatars').getPublicUrl(fileName);
-      await saveAvatarToDb(data.publicUrl); // Guarda en DB al instante
+      await saveAvatarToDb(data.publicUrl);
       Alert.alert("¡Listo!", "Foto de perfil actualizada.");
     } catch (error) {
       console.error(error);
@@ -102,7 +110,6 @@ export default function ProfileScreen() {
             <Text style={styles.title}>Mi perfil</Text>
           </View>
           
-          {/* FOTO DE PERFIL CON BOTÓN DE CÁMARA */}
           <TouchableOpacity style={styles.avatarContainer} onPress={() => setModalVisible(true)} disabled={uploading}>
             {avatarUrl ? (
               <Image source={{ uri: avatarUrl }} style={styles.avatarImage} />
@@ -135,7 +142,6 @@ export default function ProfileScreen() {
         </View>
 
         <View style={styles.menuContainer}>
-          {/* BOTÓN DIRECTO A EDITAR DATOS */}
           <TouchableOpacity style={styles.menuItem} onPress={() => router.push('/settings-personal-data')}>
             <View style={{ flexDirection: 'row', alignItems: 'center' }}>
               <Ionicons name="person-outline" size={20} color="#705849" style={{ marginRight: 10 }} />
@@ -176,7 +182,6 @@ export default function ProfileScreen() {
       </ScrollView>
       <BottomNav />
 
-      {/* MODAL PARA CAMBIAR EL AVATAR */}
       <Modal visible={modalVisible} transparent animationType="slide">
         <View style={styles.modalOverlay}>
           <View style={styles.modalContent}>
@@ -187,7 +192,7 @@ export default function ProfileScreen() {
               <Text style={styles.uploadGalleryText}>{uploading ? 'Subiendo...' : 'Subir de mi galería'}</Text>
             </TouchableOpacity>
 
-            <Text style={[styles.label, { marginTop: 20, textAlign: 'center' }]}>O elige uno de nuestros avatares</Text>
+            <Text style={styles.label}>O elige uno de nuestros avatares</Text>
             <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.avatarList}>
               {DEFAULT_AVATARS.map((url, index) => (
                 <TouchableOpacity 
@@ -243,6 +248,10 @@ const styles = StyleSheet.create({
   modalTitle: { fontSize: 22, fontWeight: 'bold', color: '#342F29', marginBottom: 20, textAlign: 'center' },
   uploadGalleryBtn: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', backgroundColor: '#705849', padding: 15, borderRadius: 10, marginBottom: 10 },
   uploadGalleryText: { color: '#FFF', fontWeight: 'bold', marginLeft: 10, fontSize: 16 },
+  
+  // ESTA ES LA LÍNEA QUE FALTABA:
+  label: { fontSize: 14, fontWeight: 'bold', color: '#705849', marginBottom: 8, textAlign: 'center' }, 
+  
   avatarList: { flexDirection: 'row', marginTop: 10, marginBottom: 20 },
   avatarOption: { marginRight: 15, borderWidth: 3, borderColor: 'transparent', borderRadius: 35, padding: 2 },
   avatarOptionSelected: { borderColor: '#9BAA91' },

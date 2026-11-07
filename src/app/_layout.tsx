@@ -6,6 +6,7 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { Provider } from 'react-redux';
 import { PersistGate } from 'redux-persist/integration/react';
 import AchievementWatcher from '../components/AchievementWatcher';
+import SyncWatcher from '../components/SyncWatcher';
 import Toast from '../components/Toast';
 import { supabase } from '../lib/supabase';
 import { persistor, store } from '../store';
@@ -46,7 +47,7 @@ export default function RootLayout() {
     } else if (session && inPublicRoute) {
       router.replace('/home');
     }
-  }, [session, segments, isLoading]);
+  }, [session, segments, isLoading, router]);
 
   if (isLoading) return null;
 
@@ -59,11 +60,11 @@ export default function RootLayout() {
           <Stack screenOptions={{ headerShown: false }}>
             {/* Rutas Públicas */}
             <Stack.Screen name="index" />
-            <Stack.Screen name="onboarding" />
             <Stack.Screen name="login" />
             <Stack.Screen name="register" />
             <Stack.Screen name="recover-password" />
             <Stack.Screen name="reset-password" />
+            <Stack.Screen name="onboarding" />
 
             {/* Rutas Privadas */}
             <Stack.Screen name="home" />
@@ -87,7 +88,7 @@ export default function RootLayout() {
             <Stack.Screen name="stars-game" />
             <Stack.Screen name="garden-game" />
             
-            {/* Configuración y sub-pantallas */}
+            {/* Configuración */}
             <Stack.Screen name="settings" />
             <Stack.Screen name="settings-notifications" />
             <Stack.Screen name="settings-privacy" />
@@ -103,9 +104,9 @@ export default function RootLayout() {
             <Stack.Screen name="settings-usage-tips" />
           </Stack>
           
-          {/* Notificaciones y Vigilante de Logros */}
           <Toast />
           <AchievementWatcher />
+          <SyncWatcher />
           
         </PersistGateComponent>
       </Provider>

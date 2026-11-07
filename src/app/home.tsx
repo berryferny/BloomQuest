@@ -1,19 +1,17 @@
 import { Ionicons } from '@expo/vector-icons';
-import * as Haptics from 'expo-haptics'; // <-- IMPORTAMOS HAPTICS
+import * as Haptics from 'expo-haptics';
 import { router } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { ActivityIndicator, SafeAreaView, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 import BottomNav from '../components/BottomNav';
 import BQLogo from '../components/BQLogo';
-import { fetchHabitsFromDb, fetchProfileFromDb, syncProfileToDb } from '../lib/habitsDb';
-import { checkDailyStreak, resetHabitsDaily, setHabitsFromDb, setProfile, toggleHabit } from '../store/habitsSlice';
+import { fetchHabitsFromDb } from '../lib/habitsDb';
+import { checkDailyStreak, resetHabitsDaily, setHabitsFromDb, toggleHabit } from '../store/habitsSlice';
 
 export default function HomeScreen() {
   const { 
-    habits = [], coins = 0, streak = 0, userName = 'Persona Bloom', 
-    garden = [], seedInventory = [], lastLoginDate = null,
-    moodHistory = [], completedMissions = [], avatarUrl = null
+    habits = [], coins = 0, streak = 0, userName = 'Persona Bloom' 
   } = useSelector((state: any) => state.habits);
   
   const dispatch = useDispatch();
@@ -23,11 +21,7 @@ export default function HomeScreen() {
     const loadData = async () => {
       const dbHabits = await fetchHabitsFromDb();
       if (dbHabits.length > 0) dispatch(setHabitsFromDb(dbHabits));
-
-      const dbProfile = await fetchProfileFromDb();
-      if (dbProfile) {
-        dispatch(setProfile(dbProfile));
-      }
+      
       setIsFetching(false);
     };
 
@@ -36,16 +30,8 @@ export default function HomeScreen() {
     dispatch(resetHabitsDaily());
   }, [dispatch]);
 
-  useEffect(() => {
-    if (coins !== undefined) {
-      syncProfileToDb(coins, garden, seedInventory, streak, lastLoginDate, moodHistory, completedMissions, avatarUrl);
-    }
-  }, [coins, garden, seedInventory, streak, moodHistory, completedMissions, avatarUrl]);
-
-  // NUEVA FUNCIÓN CON VIBRACIÓN
   const handleToggle = (id: string, isCompleted: boolean) => {
     dispatch(toggleHabit(id));
-    // Si lo completó, vibra de forma "exitosa". Si lo desmarcó, vibra leve.
     if (!isCompleted) {
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
     } else {
@@ -94,7 +80,6 @@ export default function HomeScreen() {
 
         <Text style={styles.sectionTitle}>Tus hábitos</Text>
         
-        {/* ESTADO VACÍO BONITO */}
         {habits.length === 0 ? (
           <View style={styles.emptyStateContainer}>
             <Ionicons name="leaf-outline" size={60} color="#9BAA91" />
@@ -109,7 +94,7 @@ export default function HomeScreen() {
             <TouchableOpacity 
               key={habit.id} 
               style={styles.habitItem}
-              onPress={() => handleToggle(habit.id, habit.completed)} // <-- Usamos la función con haptics
+              onPress={() => handleToggle(habit.id, habit.completed)}
             >
               <Ionicons 
                 name={habit.completed ? "checkmark-circle" : "ellipse-outline"} 
@@ -149,8 +134,6 @@ const styles = StyleSheet.create({
   habitItem: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#FFFFFF', padding: 15, borderRadius: 10, marginBottom: 10, borderWidth: 1, borderColor: '#EBE5DA' },
   habitText: { fontSize: 16, color: '#342F29', marginLeft: 15 },
   habitCompleted: { textDecorationLine: 'line-through', color: '#9BAA91' },
-  
-  // ESTILOS DEL ESTADO VACÍO
   emptyStateContainer: { alignItems: 'center', justifyContent: 'center', paddingVertical: 40, paddingHorizontal: 20 },
   emptyStateTitle: { fontSize: 20, fontWeight: 'bold', color: '#342F29', marginTop: 15, marginBottom: 5 },
   emptyStateText: { fontSize: 14, color: '#705849', textAlign: 'center', marginBottom: 20 },

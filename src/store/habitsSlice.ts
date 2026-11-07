@@ -1,5 +1,6 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { addHabitToDb, deleteHabitFromDb, toggleHabitInDb, updateHabitInDb } from '../lib/habitsDb';
+import { supabase } from '../lib/supabase';
 
 export interface Habit { id: string; name: string; completed: boolean; days: string[]; time: string; }
 interface MoodEntry { id: string; date: string; mood: string; emoji: string; }
@@ -30,12 +31,9 @@ const habitsSlice = createSlice({
   name: 'habits',
   initialState,
   reducers: {
-    // --- NUEVA ACCIÓN: Cerrar sesión limpiamente ---
     logout: (state) => {
       return initialState;
     },
-    // -----------------------------------------------
-
     setHabitsFromDb: (state, action) => { state.habits = action.payload; },
     setProfile: (state, action) => {
       if (action.payload) {
@@ -46,20 +44,14 @@ const habitsSlice = createSlice({
         state.lastLoginDate = action.payload.last_login_date;
         state.moodHistory = action.payload.mood_history || [];
         state.completedMissions = action.payload.completed_missions || [];
-        state.avatarUrl = action.payload.avatar_url || null;
+        if (action.payload.avatar_url) {
+          state.avatarUrl = action.payload.avatar_url;
+        }
       }
     },
-    setAvatarUrl: (state, action: PayloadAction<string>) => {
-      state.avatarUrl = action.payload;
-    },
-    showToast: (state, action: PayloadAction<string>) => {
-      state.toastMessage = action.payload;
-      state.toastVisible = true;
-    },
-    hideToast: (state) => {
-      state.toastVisible = false;
-      state.toastMessage = null;
-    },
+    setAvatarUrl: (state, action: PayloadAction<string>) => { state.avatarUrl = action.payload; },
+    showToast: (state, action: PayloadAction<string>) => { state.toastMessage = action.payload; state.toastVisible = true; },
+    hideToast: (state) => { state.toastVisible = false; state.toastMessage = null; },
     addHabit: (state, action: PayloadAction<Habit>) => { state.habits.push(action.payload); addHabitToDb(action.payload); },
     updateHabit: (state, action: PayloadAction<{ id: string, name: string, days: string[], time: string }>) => {
       const habit = state.habits.find((h) => h.id === action.payload.id);
@@ -118,11 +110,35 @@ const habitsSlice = createSlice({
     },
     addMood: (state, action) => {
       if (!state.moodHistory) state.moodHistory = [];
-      state.moodHistory.unshift({ id: Date.now().toString(), date: new Date().toLocaleDateString('es-ES', { weekday: 'short', day: 'numeric', month: 'short' }), mood: action.payload.mood, emoji: action.payload.emoji });
+      state.moodHistory.unshift({ 
+        id: Date.now().toString(), 
+        date: new Date().toLocaleDateString('es-ES', { weekday: 'short', day: 'numeric', month: 'short' }), 
+        mood: action.payload.mood, 
+        emoji: action.payload.emoji 
+      });
+      
+      // COPIA SEGURA PARA SUPABASE
+      const plainMoodHistory = JSON.parse(JSON.stringify(state.moodHistory));
+      
+      supabase.auth.getUser().then(({ data: { user } }) => {
+        if (user) {
+          supabase.from('profiles').update({ mood_history: plainMoodHistory }).eq('id', user.id).then(({ error }) => {
+            if (error) console.log("Error guardando emoción:", error);
+          });
+        }
+      });
     },
     deleteMood: (state, action: PayloadAction<any>) => {
       if (typeof action.payload === 'string') state.moodHistory = state.moodHistory.filter((m) => m.id !== action.payload);
       else state.moodHistory.splice(action.payload, 1);
+
+      const plainMoodHistory = JSON.parse(JSON.stringify(state.moodHistory));
+
+      supabase.auth.getUser().then(({ data: { user } }) => {
+        if (user) {
+          supabase.from('profiles').update({ mood_history: plainMoodHistory }).eq('id', user.id);
+        }
+      });
     },
     addCoins: (state, action) => { state.coins += action.payload; },
     checkDailyStreak: (state) => {

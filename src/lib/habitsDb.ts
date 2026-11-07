@@ -11,7 +11,10 @@ export const fetchHabitsFromDb = async () => {
 export const addHabitToDb = async (habit: { id: string, name: string, completed: boolean, days: string[], time: string }) => {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return;
-  await supabase.from('habits').insert({ id: habit.id, user_id: user.id, name: habit.name, completed: habit.completed, days: habit.days, time: habit.time });
+  await supabase.from('habits').insert({ 
+    id: habit.id, user_id: user.id, name: habit.name, 
+    completed: habit.completed, days: habit.days, time: habit.time 
+  });
 };
 
 export const updateHabitInDb = async (habitId: string, name: string, days: string[], time: string) => {
@@ -35,31 +38,4 @@ export const fetchProfileFromDb = async () => {
     return newProfile;
   }
   return data;
-};
-
-// Actualizado para recibir y guardar el avatarUrl
-export const syncProfileToDb = async (
-  coins: number, 
-  garden: any, 
-  inventory: string[], 
-  streak: number, 
-  lastLoginDate: string | null,
-  moodHistory: any[],
-  completedMissions: string[],
-  avatarUrl: string | null
-) => {
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) return;
-
-  await supabase.from('profiles').update({
-    coins,
-    garden,
-    inventory,
-    streak,
-    last_login_date: lastLoginDate,
-    mood_history: moodHistory,
-    completed_missions: completedMissions,
-    avatar_url: avatarUrl,
-    updated_at: new Date().toISOString()
-  }).eq('id', user.id);
 };

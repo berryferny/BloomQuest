@@ -82,6 +82,8 @@ export default function RootLayout() {
           <Stack.Screen name="settings" />
           <Stack.Screen name="settings-notifications" />
           <Stack.Screen name="settings-privacy" />
+          <Stack.Screen name="settings-emotional-record" /> 
+          <Stack.Screen name="settings-app-permissions" />
           <Stack.Screen name="settings-help" />
           <Stack.Screen name="settings-personal-data" />
           <Stack.Screen name="settings-accessibility" />

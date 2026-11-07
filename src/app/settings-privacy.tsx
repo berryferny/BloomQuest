@@ -1,5 +1,5 @@
 import { Ionicons } from '@expo/vector-icons';
-import { router } from 'expo-router'; // <-- ESTA ES LA CORRECTA
+import { router } from 'expo-router';
 import { SafeAreaView, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import BackButton from '../components/BackButton';
 
@@ -24,7 +24,8 @@ export default function PrivacySettingsScreen() {
             <Ionicons name="chevron-forward" size={20} color="#9BAA91" />
           </TouchableOpacity>
 
-          <TouchableOpacity style={styles.menuItem}>
+          {/* CONECTADO A REGISTRO EMOCIONAL */}
+          <TouchableOpacity style={styles.menuItem} onPress={() => router.push('/settings-emotional-record')}>
             <View>
               <Text style={styles.menuTitle}>Registro emocional</Text>
               <Text style={styles.menuSubtitle}>Control de información privada</Text>
@@ -32,7 +33,8 @@ export default function PrivacySettingsScreen() {
             <Ionicons name="chevron-forward" size={20} color="#9BAA91" />
           </TouchableOpacity>
 
-          <TouchableOpacity style={styles.menuItem}>
+          {/* CONECTADO A PERMISOS DE LA APP */}
+          <TouchableOpacity style={styles.menuItem} onPress={() => router.push('/settings-app-permissions')}>
             <View>
               <Text style={styles.menuTitle}>Permisos de la app</Text>
               <Text style={styles.menuSubtitle}>Notificaciones y almacenamiento</Text>
@@ -61,17 +63,7 @@ const styles = StyleSheet.create({
   title: { fontSize: 24, fontWeight: 'bold', color: '#342F29' },
   subtitle: { fontSize: 14, color: '#705849', marginTop: 5, marginBottom: 25 },
   menuContainer: { marginBottom: 30 },
-  menuItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    backgroundColor: '#FFFFFF',
-    padding: 20,
-    borderRadius: 12,
-    marginBottom: 12,
-    borderWidth: 1,
-    borderColor: '#EBE5DA',
-  },
+  menuItem: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', backgroundColor: '#FFFFFF', padding: 20, borderRadius: 12, marginBottom: 12, borderWidth: 1, borderColor: '#EBE5DA' },
   menuTitle: { fontSize: 16, fontWeight: 'bold', color: '#342F29' },
   menuSubtitle: { fontSize: 12, color: '#705849', marginTop: 4 },
 });

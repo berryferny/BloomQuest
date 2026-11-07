@@ -4,52 +4,73 @@ import { useSelector } from 'react-redux';
 import BackButton from '../components/BackButton';
 
 export default function AchievementsScreen() {
-  const { habits = [], completedMissions = [], garden = [], coins = 0, streak = 0 } = useSelector((state: any) => state.habits);
+  const { 
+    habits = [], completedMissions = [], garden = [], coins = 0, 
+    streak = 0, moodHistory = [], seedInventory = [] 
+  } = useSelector((state: any) => state.habits);
 
-  // Calculamos cuántas plantas hay en el jardín
+  // Cálculos para los logros
   const plantsInGarden = garden.filter((p: any) => p !== null).length;
+  const bloomedPlants = garden.filter((p: any) => p !== null && p.isBloomed).length;
 
-  // Definimos los logros y su lógica real
+  // Definimos la lista de logros
   const badges = [
+    // --- LOGROS BÁSICOS ---
     { 
-      id: 1, 
-      title: 'Primer paso', 
-      desc: 'Crea tu primer hábito',
-      icon: 'leaf', 
-      current: habits.length, 
-      target: 1 
+      id: 'b1', title: 'Primer paso', desc: 'Crea tu primer hábito',
+      icon: 'leaf', current: habits.length, target: 1, isSecret: false 
     },
     { 
-      id: 2, 
-      title: 'Jardín vivo', 
-      desc: 'Planta tu primera semilla',
-      icon: 'flower', 
-      current: plantsInGarden, 
-      target: 1 
+      id: 'b2', title: 'Jardín vivo', desc: 'Planta tu primera semilla',
+      icon: 'flower', current: plantsInGarden, target: 1, isSecret: false 
     },
     { 
-      id: 3, 
-      title: 'Misión cumplida', 
-      desc: 'Completa una misión diaria',
-      icon: 'star', 
-      current: completedMissions.length, 
-      target: 1 
+      id: 'b3', title: 'Misión cumplida', desc: 'Completa una misión diaria',
+      icon: 'star', current: completedMissions.length, target: 1, isSecret: false 
     },
     { 
-      id: 4, 
-      title: 'En racha', 
-      desc: 'Mantén una racha de 3 días',
-      icon: 'flame', 
-      current: streak, 
-      target: 3 
+      id: 'b4', title: 'Autoconocimiento', desc: 'Registra tu primera emoción',
+      icon: 'happy', current: moodHistory.length, target: 1, isSecret: false 
     },
     { 
-      id: 5, 
-      title: 'Ahorrador', 
-      desc: 'Acumula 150 monedas',
-      icon: 'cash', 
-      current: coins, 
-      target: 150 
+      id: 'b5', title: 'En racha', desc: 'Mantén una racha de 3 días',
+      icon: 'flame', current: streak, target: 3, isSecret: false 
+    },
+    { 
+      id: 'b6', title: 'Ahorrador', desc: 'Acumula 150 monedas',
+      icon: 'cash', current: coins, target: 150, isSecret: false 
+    },
+
+    // --- LOGROS AVANZADOS ---
+    { 
+      id: 'b7', title: 'Creador de rutinas', desc: 'Crea 5 hábitos',
+      icon: 'list', current: habits.length, target: 5, isSecret: false 
+    },
+    { 
+      id: 'b8', title: 'Primera floración', desc: 'Haz florecer una planta',
+      icon: 'rose', current: bloomedPlants, target: 1, isSecret: false 
+    },
+    { 
+      id: 'b9', title: 'Semana perfecta', desc: 'Mantén una racha de 7 días',
+      icon: 'calendar', current: streak, target: 7, isSecret: false 
+    },
+    { 
+      id: 'b10', title: 'Diario emocional', desc: 'Registra 5 emociones',
+      icon: 'book', current: moodHistory.length, target: 5, isSecret: false 
+    },
+    
+    // --- LOGROS SECRETOS (Se revelan al cumplirse) ---
+    { 
+      id: 's1', title: 'Pulgar verde', desc: 'Llena tu jardín con 6 plantas',
+      icon: 'flower', current: plantsInGarden, target: 6, isSecret: true 
+    },
+    { 
+      id: 's2', title: 'Magnate', desc: 'Acumula 500 monedas',
+      icon: 'diamond', current: coins, target: 500, isSecret: true 
+    },
+    { 
+      id: 's3', title: 'El coleccionista', desc: 'Compra 5 semillas',
+      icon: 'bag', current: seedInventory.length, target: 5, isSecret: true 
     },
   ];
 
@@ -65,39 +86,45 @@ export default function AchievementsScreen() {
 
         {badges.map((badge) => {
           const isUnlocked = badge.current >= badge.target;
-          // Calculamos el porcentaje de progreso (máximo 100%)
           const progressPercent = Math.min((badge.current / badge.target) * 100, 100);
+          
+          // Si es secreto y NO está desbloqueado, ocultamos la info
+          const showRealInfo = !badge.isSecret || isUnlocked;
+          const displayTitle = showRealInfo ? badge.title : '???';
+          const displayDesc = showRealInfo ? badge.desc : 'Sigue jugando para descubrirlo...';
 
           return (
             <View key={badge.id} style={[styles.card, isUnlocked ? styles.cardUnlocked : styles.cardLocked]}>
               <View style={styles.cardHeader}>
                 <View style={[styles.iconContainer, isUnlocked && styles.iconContainerUnlocked]}>
                   <Ionicons 
-                    name={badge.icon as any} 
+                    name={showRealInfo ? (badge.icon as any) : 'lock-closed'} 
                     size={24} 
                     color={isUnlocked ? '#FFFFFF' : '#9BAA91'} 
                   />
                 </View>
                 <View style={styles.textContainer}>
                   <Text style={[styles.cardTitle, isUnlocked && styles.textUnlocked]}>
-                    {badge.title}
+                    {displayTitle}
                   </Text>
-                  <Text style={styles.cardDesc}>{badge.desc}</Text>
+                  <Text style={styles.cardDesc}>{displayDesc}</Text>
                 </View>
                 {isUnlocked && (
                   <Ionicons name="checkmark-circle" size={28} color="#9BAA91" />
                 )}
               </View>
 
-              {/* Barra de progreso del logro */}
-              <View style={styles.progressContainer}>
-                <View style={styles.progressBarBackground}>
-                  <View style={[styles.progressBarFill, { width: `${progressPercent}%`, backgroundColor: isUnlocked ? '#9BAA91' : '#705849' }]} />
+              {/* Barra de progreso (si no es secreto bloqueado) */}
+              {(!badge.isSecret || isUnlocked) && (
+                <View style={styles.progressContainer}>
+                  <View style={styles.progressBarBackground}>
+                    <View style={[styles.progressBarFill, { width: `${progressPercent}%`, backgroundColor: isUnlocked ? '#9BAA91' : '#705849' }]} />
+                  </View>
+                  <Text style={styles.progressText}>
+                    {badge.current > badge.target ? badge.target : badge.current} / {badge.target}
+                  </Text>
                 </View>
-                <Text style={styles.progressText}>
-                  {badge.current > badge.target ? badge.target : badge.current} / {badge.target}
-                </Text>
-              </View>
+              )}
             </View>
           );
         })}

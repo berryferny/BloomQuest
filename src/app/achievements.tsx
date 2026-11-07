@@ -4,14 +4,53 @@ import { useSelector } from 'react-redux';
 import BackButton from '../components/BackButton';
 
 export default function AchievementsScreen() {
-  const { habits = [], completedMissions = [] } = useSelector((state: any) => state.habits);
-  const completedHabits = habits.filter((h: any) => h.completed).length;
+  const { habits = [], completedMissions = [], garden = [], coins = 0, streak = 0 } = useSelector((state: any) => state.habits);
 
+  // Calculamos cuántas plantas hay en el jardín
+  const plantsInGarden = garden.filter((p: any) => p !== null).length;
+
+  // Definimos los logros y su lógica real
   const badges = [
-    { id: 1, title: 'Primer hábito completado', req: completedHabits >= 1 },
-    { id: 2, title: 'Primera misión terminada', req: completedMissions.length >= 1 },
-    { id: 3, title: 'Primera flor desbloqueada', req: habits.length >= 3 },
-    { id: 4, title: 'Maestro de la constancia', req: completedHabits >= 5 },
+    { 
+      id: 1, 
+      title: 'Primer paso', 
+      desc: 'Crea tu primer hábito',
+      icon: 'leaf', 
+      current: habits.length, 
+      target: 1 
+    },
+    { 
+      id: 2, 
+      title: 'Jardín vivo', 
+      desc: 'Planta tu primera semilla',
+      icon: 'flower', 
+      current: plantsInGarden, 
+      target: 1 
+    },
+    { 
+      id: 3, 
+      title: 'Misión cumplida', 
+      desc: 'Completa una misión diaria',
+      icon: 'star', 
+      current: completedMissions.length, 
+      target: 1 
+    },
+    { 
+      id: 4, 
+      title: 'En racha', 
+      desc: 'Mantén una racha de 3 días',
+      icon: 'flame', 
+      current: streak, 
+      target: 3 
+    },
+    { 
+      id: 5, 
+      title: 'Ahorrador', 
+      desc: 'Acumula 150 monedas',
+      icon: 'cash', 
+      current: coins, 
+      target: 150 
+    },
   ];
 
   return (
@@ -22,14 +61,46 @@ export default function AchievementsScreen() {
       <ScrollView contentContainerStyle={styles.scrollContent}>
         <Text style={styles.logoText}>BQ</Text>
         <Text style={styles.title}>Mis logros</Text>
-        <Text style={styles.subtitle}>Celebra cada avance.</Text>
+        <Text style={styles.subtitle}>Celebra cada avance en tu camino.</Text>
 
-        {badges.map((badge) => (
-          <View key={badge.id} style={[styles.card, !badge.req && styles.cardLocked]}>
-            <Ionicons name={badge.req ? "medal" : "lock-closed"} size={28} color={badge.req ? "#F5B041" : "#9BAA91"} />
-            <Text style={[styles.cardText, !badge.req && styles.textLocked]}>{badge.title}</Text>
-          </View>
-        ))}
+        {badges.map((badge) => {
+          const isUnlocked = badge.current >= badge.target;
+          // Calculamos el porcentaje de progreso (máximo 100%)
+          const progressPercent = Math.min((badge.current / badge.target) * 100, 100);
+
+          return (
+            <View key={badge.id} style={[styles.card, isUnlocked ? styles.cardUnlocked : styles.cardLocked]}>
+              <View style={styles.cardHeader}>
+                <View style={[styles.iconContainer, isUnlocked && styles.iconContainerUnlocked]}>
+                  <Ionicons 
+                    name={badge.icon as any} 
+                    size={24} 
+                    color={isUnlocked ? '#FFFFFF' : '#9BAA91'} 
+                  />
+                </View>
+                <View style={styles.textContainer}>
+                  <Text style={[styles.cardTitle, isUnlocked && styles.textUnlocked]}>
+                    {badge.title}
+                  </Text>
+                  <Text style={styles.cardDesc}>{badge.desc}</Text>
+                </View>
+                {isUnlocked && (
+                  <Ionicons name="checkmark-circle" size={28} color="#9BAA91" />
+                )}
+              </View>
+
+              {/* Barra de progreso del logro */}
+              <View style={styles.progressContainer}>
+                <View style={styles.progressBarBackground}>
+                  <View style={[styles.progressBarFill, { width: `${progressPercent}%`, backgroundColor: isUnlocked ? '#9BAA91' : '#705849' }]} />
+                </View>
+                <Text style={styles.progressText}>
+                  {badge.current > badge.target ? badge.target : badge.current} / {badge.target}
+                </Text>
+              </View>
+            </View>
+          );
+        })}
       </ScrollView>
     </SafeAreaView>
   );
@@ -42,8 +113,44 @@ const styles = StyleSheet.create({
   logoText: { fontSize: 32, fontWeight: 'bold', color: '#342F29', marginBottom: 10 },
   title: { fontSize: 24, fontWeight: 'bold', color: '#342F29' },
   subtitle: { fontSize: 14, color: '#705849', marginTop: 5, marginBottom: 25 },
-  card: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#FFFFFF', padding: 18, borderRadius: 12, marginBottom: 12, borderWidth: 1, borderColor: '#EBE5DA' },
-  cardLocked: { backgroundColor: '#EBE5DA', opacity: 0.7 },
-  cardText: { fontSize: 16, fontWeight: 'bold', color: '#342F29', marginLeft: 15 },
-  textLocked: { color: '#9BAA91' },
+  
+  card: {
+    backgroundColor: '#FFFFFF',
+    padding: 15,
+    borderRadius: 15,
+    marginBottom: 15,
+    borderWidth: 1,
+    borderColor: '#EBE5DA',
+  },
+  cardUnlocked: {
+    backgroundColor: '#F8F5EF',
+    borderColor: '#9BAA91',
+    borderWidth: 2,
+  },
+  cardLocked: {
+    opacity: 0.8,
+  },
+  
+  cardHeader: { flexDirection: 'row', alignItems: 'center', marginBottom: 15 },
+  iconContainer: {
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+    backgroundColor: '#EBE5DA',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 15,
+  },
+  iconContainerUnlocked: {
+    backgroundColor: '#9BAA91',
+  },
+  textContainer: { flex: 1 },
+  cardTitle: { fontSize: 16, fontWeight: 'bold', color: '#705849', marginBottom: 4 },
+  textUnlocked: { color: '#342F29' },
+  cardDesc: { fontSize: 12, color: '#9BAA91' },
+  
+  progressContainer: { flexDirection: 'row', alignItems: 'center' },
+  progressBarBackground: { flex: 1, height: 8, backgroundColor: '#EBE5DA', borderRadius: 4, marginRight: 10 },
+  progressBarFill: { height: 8, borderRadius: 4 },
+  progressText: { fontSize: 12, fontWeight: 'bold', color: '#705849', width: 50, textAlign: 'right' },
 });

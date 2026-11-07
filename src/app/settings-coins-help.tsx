@@ -1,5 +1,6 @@
 import BQLogo from '@/components/BQLogo';
-import { SafeAreaView, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import BackButton from '../components/BackButton';
 
 export default function CoinsHelpScreen() {

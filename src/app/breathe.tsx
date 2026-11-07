@@ -1,7 +1,8 @@
 import BQLogo from '@/components/BQLogo';
 import { router } from 'expo-router';
 import { useEffect, useRef, useState } from 'react';
-import { Animated, SafeAreaView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Animated, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import BackButton from '../components/BackButton';
 
 export default function BreatheScreen() {

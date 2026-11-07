@@ -1,10 +1,10 @@
 import { router } from 'expo-router';
-import { SafeAreaView, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useDispatch } from 'react-redux';
 import BackButton from '../components/BackButton';
 import BQLogo from '../components/BQLogo';
 import { addMood } from '../store/habitsSlice';
-
 const EMOTIONS = [
   { id: '1', label: 'Feliz', emoji: '😊' },
   { id: '2', label: 'En calma', emoji: '😌' },

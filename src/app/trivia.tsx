@@ -1,6 +1,7 @@
 import { router } from 'expo-router';
 import { useState } from 'react';
-import { SafeAreaView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useDispatch } from 'react-redux';
 import BackButton from '../components/BackButton';
 import { addCoins } from '../store/habitsSlice';
@@ -160,4 +161,4 @@ const styles = StyleSheet.create({
   playAgainText: { color: '#F8F5EF', fontSize: 16, fontWeight: 'bold' },
   exitButton: { padding: 15, width: '100%', alignItems: 'center' },
   exitText: { color: '#705849', fontSize: 16, fontWeight: 'bold', textDecorationLine: 'underline' },
-});
+}); 

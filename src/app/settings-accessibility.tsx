@@ -1,6 +1,7 @@
 import BQLogo from '@/components/BQLogo';
 import { useState } from 'react';
-import { SafeAreaView, ScrollView, StyleSheet, Switch, Text, View } from 'react-native';
+import { ScrollView, StyleSheet, Switch, Text, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import BackButton from '../components/BackButton';
 
 export default function AccessibilitySettingsScreen() {

@@ -1,7 +1,8 @@
 import { router } from 'expo-router';
 import { useState } from 'react';
-import { Alert, Image, KeyboardAvoidingView, Platform, SafeAreaView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'; // <-- Agregamos Image
+import { Alert, KeyboardAvoidingView, Platform, SafeAreaView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { useDispatch } from 'react-redux';
+import BQLogo from '../components/BQLogo';
 import { supabase } from '../lib/supabase';
 import { setUserName } from '../store/habitsSlice';
 
@@ -18,15 +19,32 @@ export default function LoginScreen() {
     }
     setLoading(true);
     
+    // 1. Intentamos iniciar sesión
     const { data, error } = await supabase.auth.signInWithPassword({ email, password });
     
     if (error) {
-      Alert.alert('Error de inicio de sesión', error.message);
+      // 2. Si falla (porque el usuario no existe), lo registramos automáticamente
+      console.log("Usuario no encontrado, registrando automáticamente...");
+      const { data: signUpData, error: signUpError } = await supabase.auth.signUp({ 
+        email, 
+        password,
+        options: { data: { full_name: 'Usuario de Prueba' } }
+      });
+
+      if (signUpError) {
+        Alert.alert('Error de acceso', signUpError.message);
+      } else {
+        // Si el registro fue exitoso, entramos directo
+        dispatch(setUserName('Usuario de Prueba'));
+        router.replace('/onboarding');
+      }
     } else {
+      // 3. Si el login fue exitoso, entramos normal
       const userName = data.user?.user_metadata?.full_name || 'Persona Bloom';
       dispatch(setUserName(userName));
       router.replace('/home');
     }
+    
     setLoading(false);
   };
 
@@ -35,13 +53,7 @@ export default function LoginScreen() {
       <KeyboardAvoidingView style={styles.keyboardView} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
         <View style={styles.content}>
           
-          {/* AQUÍ ESTÁ LA MAGIA: La imagen en vez del texto */}
-          <Image 
-            source={require('../../assets/images/logo-bloomquest.png')} 
-            style={styles.logoImage} 
-            resizeMode="contain"
-          />
-          
+          <BQLogo size={50} />
           <Text style={styles.slogan}>Pequeños hábitos, grandes cambios.</Text>
           <Text style={styles.title}>¡Hola de nuevo!</Text>
 
@@ -53,13 +65,13 @@ export default function LoginScreen() {
             <TextInput style={styles.input} placeholder="••••••••" placeholderTextColor="#9BAA91" secureTextEntry value={password} onChangeText={setPassword} />
 
             <TouchableOpacity style={styles.button} onPress={handleLogin} disabled={loading}>
-              <Text style={styles.buttonText}>{loading ? 'Cargando...' : 'Iniciar sesión'}</Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity style={styles.linkButton} onPress={() => router.push('/register')}>
-              <Text style={styles.linkText}>¿No tienes cuenta? Regístrate</Text>
+              <Text style={styles.buttonText}>{loading ? 'Entrando...' : 'Iniciar sesión'}</Text>
             </TouchableOpacity>
             
+            <Text style={styles.hintText}>
+              (Si el correo no existe, se creará automáticamente)
+            </Text>
+
             <TouchableOpacity style={styles.linkButton} onPress={() => router.push('/recover-password')}>
               <Text style={styles.linkText}>¿Olvidaste tu contraseña?</Text>
             </TouchableOpacity>
@@ -74,15 +86,6 @@ const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#F8F5EF' },
   keyboardView: { flex: 1 },
   content: { flex: 1, padding: 30, justifyContent: 'center' },
-  
-  // NUEVOS ESTILOS PARA LA IMAGEN
-  logoImage: {
-    width: 280,
-    height: 140,
-    alignSelf: 'center',
-    marginBottom: 5,
-  },
-
   slogan: { fontSize: 14, color: '#705849', textAlign: 'center', marginBottom: 40 },
   title: { fontSize: 24, fontWeight: 'bold', color: '#342F29', marginBottom: 20 },
   form: { width: '100%' },
@@ -90,6 +93,7 @@ const styles = StyleSheet.create({
   input: { backgroundColor: '#FFFFFF', borderWidth: 1, borderColor: '#EBE5DA', borderRadius: 10, padding: 15, fontSize: 16, marginBottom: 20, color: '#342F29' },
   button: { backgroundColor: '#705849', padding: 15, borderRadius: 10, alignItems: 'center', marginTop: 10 },
   buttonText: { color: '#F8F5EF', fontSize: 16, fontWeight: 'bold' },
-  linkButton: { marginTop: 15, alignItems: 'center' },
+  hintText: { fontSize: 12, color: '#9BAA91', textAlign: 'center', marginTop: 10, fontStyle: 'italic' },
+  linkButton: { marginTop: 25, alignItems: 'center' },
   linkText: { color: '#705849', fontSize: 14, textDecorationLine: 'underline' },
 });

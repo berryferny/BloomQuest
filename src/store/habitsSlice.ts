@@ -16,19 +16,26 @@ interface HabitsState {
   lastLoginDate: string | null;
   userName: string;
   lastHabitResetDate: string | null;
-  toastMessage: string | null; // <-- NUEVO
-  toastVisible: boolean;       // <-- NUEVO
+  toastMessage: string | null;
+  toastVisible: boolean;
+  avatarUrl: string | null;
 }
 
 const initialState: HabitsState = {
   habits: [], coins: 100, seedInventory: [], garden: [null, null, null, null, null, null], completedMissions: [], moodHistory: [], streak: 0, lastLoginDate: null, userName: 'Persona Bloom', lastHabitResetDate: null,
-  toastMessage: null, toastVisible: false, // <-- NUEVO
+  toastMessage: null, toastVisible: false, avatarUrl: null,
 };
 
 const habitsSlice = createSlice({
   name: 'habits',
   initialState,
   reducers: {
+    // --- NUEVA ACCIÓN: Cerrar sesión limpiamente ---
+    logout: (state) => {
+      return initialState;
+    },
+    // -----------------------------------------------
+
     setHabitsFromDb: (state, action) => { state.habits = action.payload; },
     setProfile: (state, action) => {
       if (action.payload) {
@@ -39,9 +46,12 @@ const habitsSlice = createSlice({
         state.lastLoginDate = action.payload.last_login_date;
         state.moodHistory = action.payload.mood_history || [];
         state.completedMissions = action.payload.completed_missions || [];
+        state.avatarUrl = action.payload.avatar_url || null;
       }
     },
-    // ACCIONES PARA EL TOAST
+    setAvatarUrl: (state, action: PayloadAction<string>) => {
+      state.avatarUrl = action.payload;
+    },
     showToast: (state, action: PayloadAction<string>) => {
       state.toastMessage = action.payload;
       state.toastVisible = true;
@@ -50,8 +60,6 @@ const habitsSlice = createSlice({
       state.toastVisible = false;
       state.toastMessage = null;
     },
-    // FIN ACCIONES TOAST
-
     addHabit: (state, action: PayloadAction<Habit>) => { state.habits.push(action.payload); addHabitToDb(action.payload); },
     updateHabit: (state, action: PayloadAction<{ id: string, name: string, days: string[], time: string }>) => {
       const habit = state.habits.find((h) => h.id === action.payload.id);
@@ -132,7 +140,7 @@ const habitsSlice = createSlice({
 });
 
 export const { 
-  setHabitsFromDb, setProfile, showToast, hideToast, 
+  logout, setHabitsFromDb, setProfile, setAvatarUrl, showToast, hideToast, 
   addHabit, updateHabit, toggleHabit, deleteHabit, resetHabitsDaily, 
   buySeed, plantSeed, waterPlant, completeMission, addMood, deleteMood, addCoins, checkDailyStreak, setUserName 
 } = habitsSlice.actions;

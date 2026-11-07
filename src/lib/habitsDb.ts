@@ -37,7 +37,7 @@ export const fetchProfileFromDb = async () => {
   return data;
 };
 
-// ACTUALIZADO: Ahora recibe y guarda el historial de emociones y las misiones
+// Actualizado para recibir y guardar el avatarUrl
 export const syncProfileToDb = async (
   coins: number, 
   garden: any, 
@@ -45,7 +45,8 @@ export const syncProfileToDb = async (
   streak: number, 
   lastLoginDate: string | null,
   moodHistory: any[],
-  completedMissions: string[]
+  completedMissions: string[],
+  avatarUrl: string | null
 ) => {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return;
@@ -58,6 +59,7 @@ export const syncProfileToDb = async (
     last_login_date: lastLoginDate,
     mood_history: moodHistory,
     completed_missions: completedMissions,
+    avatar_url: avatarUrl,
     updated_at: new Date().toISOString()
   }).eq('id', user.id);
 };

@@ -40,8 +40,8 @@ export default function RegisterScreen() {
     if (error) {
       Alert.alert('Error al registrar', error.message);
     } else {
-      Alert.alert('¡Éxito!', 'Tu cuenta ha sido creada. Ahora puedes iniciar sesión.');
-      router.replace('/login');
+      Alert.alert('¡Bienvenido!', 'Tu cuenta ha sido creada.');
+      router.replace('/onboarding');
     }
     setLoading(false);
   };

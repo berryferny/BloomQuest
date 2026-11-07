@@ -59,6 +59,7 @@ export default function RootLayout() {
           <Stack screenOptions={{ headerShown: false }}>
             {/* Rutas Públicas */}
             <Stack.Screen name="index" />
+            <Stack.Screen name="onboarding" />
             <Stack.Screen name="login" />
             <Stack.Screen name="register" />
             <Stack.Screen name="recover-password" />

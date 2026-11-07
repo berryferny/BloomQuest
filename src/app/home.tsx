@@ -1,10 +1,10 @@
-import BQLogo from '@/components/BQLogo';
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
-import { useEffect } from 'react';
-import { SafeAreaView, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { useEffect, useState } from 'react';
+import { ActivityIndicator, SafeAreaView, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 import BottomNav from '../components/BottomNav';
+import BQLogo from '../components/BQLogo';
 import { fetchHabitsFromDb, fetchProfileFromDb, syncProfileToDb } from '../lib/habitsDb';
 import { checkDailyStreak, resetHabitsDaily, setHabitsFromDb, setProfile, toggleHabit } from '../store/habitsSlice';
 
@@ -12,10 +12,11 @@ export default function HomeScreen() {
   const { 
     habits = [], coins = 0, streak = 0, userName = 'Persona Bloom', 
     garden = [], seedInventory = [], lastLoginDate = null,
-    moodHistory = [], completedMissions = [] // <-- NUEVOS
+    moodHistory = [], completedMissions = [], avatarUrl = null // <-- Agregado avatarUrl
   } = useSelector((state: any) => state.habits);
   
   const dispatch = useDispatch();
+  const [isFetching, setIsFetching] = useState(true);
 
   useEffect(() => {
     const loadData = async () => {
@@ -26,6 +27,7 @@ export default function HomeScreen() {
       if (dbProfile) {
         dispatch(setProfile(dbProfile));
       }
+      setIsFetching(false);
     };
 
     loadData();
@@ -33,12 +35,21 @@ export default function HomeScreen() {
     dispatch(resetHabitsDaily());
   }, [dispatch]);
 
-  // Sincronizamos con la nube incluyendo emociones y misiones
+  // Sincronizamos con la nube incluyendo la foto
   useEffect(() => {
     if (coins !== undefined) {
-      syncProfileToDb(coins, garden, seedInventory, streak, lastLoginDate, moodHistory, completedMissions);
+      syncProfileToDb(coins, garden, seedInventory, streak, lastLoginDate, moodHistory, completedMissions, avatarUrl);
     }
-  }, [coins, garden, seedInventory, streak, moodHistory, completedMissions]);
+  }, [coins, garden, seedInventory, streak, moodHistory, completedMissions, avatarUrl]);
+
+  if (isFetching) {
+    return (
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#F8F5EF' }}>
+        <ActivityIndicator size="large" color="#705849" />
+        <Text style={{ marginTop: 10, color: '#705849', fontWeight: 'bold' }}>Cargando tu jardín...</Text>
+      </View>
+    );
+  }
 
   const totalHabits = habits.length;
   const completedHabits = habits.filter((h: any) => h.completed).length;
@@ -50,7 +61,7 @@ export default function HomeScreen() {
         
         <View style={styles.header}>
           <View style={styles.headerTop}>
-            <BQLogo />
+            <BQLogo size={45} />
             <View style={styles.streakBadge}>
               <Text style={styles.streakText}>🔥 {streak} días</Text>
             </View>
@@ -107,7 +118,6 @@ const styles = StyleSheet.create({
   scrollContent: { padding: 20, paddingBottom: 40 },
   header: { marginBottom: 20 },
   headerTop: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 },
-  logoText: { fontSize: 32, fontWeight: 'bold', color: '#342F29' },
   streakBadge: { backgroundColor: '#EBE5DA', paddingHorizontal: 15, paddingVertical: 8, borderRadius: 20, borderWidth: 1, borderColor: '#D3C9BD' },
   streakText: { fontSize: 16, fontWeight: 'bold', color: '#705849' },
   greeting: { fontSize: 24, fontWeight: 'bold', color: '#342F29' },

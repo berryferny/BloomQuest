@@ -88,6 +88,8 @@ export default function RootLayout() {
           <Stack.Screen name="settings-personal-data" />
           <Stack.Screen name="settings-accessibility" />
           <Stack.Screen name="settings-faq" />
+          <Stack.Screen name="settings-coins-help" />    
+          <Stack.Screen name="settings-usage-tips" />
           <Stack.Screen name="settings-contact" />
           <Stack.Screen name="settings-delete-account" />
           <Stack.Screen name="achievements" />

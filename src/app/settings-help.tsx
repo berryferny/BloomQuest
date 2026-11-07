@@ -6,10 +6,7 @@ import BackButton from '../components/BackButton';
 export default function HelpSettingsScreen() {
   return (
     <SafeAreaView style={styles.container}>
-      <View style={styles.header}>
-        <BackButton />
-      </View>
-
+      <View style={styles.header}><BackButton /></View>
       <ScrollView contentContainerStyle={styles.scrollContent}>
         <Text style={styles.logoText}>BQ</Text>
         <Text style={styles.title}>Ayuda</Text>
@@ -24,7 +21,7 @@ export default function HelpSettingsScreen() {
             <Ionicons name="chevron-forward" size={20} color="#9BAA91" />
           </TouchableOpacity>
 
-          <TouchableOpacity style={styles.menuItem}>
+          <TouchableOpacity style={styles.menuItem} onPress={() => router.push('/settings-coins-help')}>
             <View>
               <Text style={styles.menuTitle}>Cómo funcionan las monedas</Text>
               <Text style={styles.menuSubtitle}>Hábitos, juegos y recompensas</Text>
@@ -32,7 +29,7 @@ export default function HelpSettingsScreen() {
             <Ionicons name="chevron-forward" size={20} color="#9BAA91" />
           </TouchableOpacity>
 
-          <TouchableOpacity style={styles.menuItem}>
+          <TouchableOpacity style={styles.menuItem} onPress={() => router.push('/settings-usage-tips')}>
             <View>
               <Text style={styles.menuTitle}>Consejos de uso</Text>
               <Text style={styles.menuSubtitle}>Cómo aprovechar tu jardín</Text>
@@ -61,17 +58,7 @@ const styles = StyleSheet.create({
   title: { fontSize: 24, fontWeight: 'bold', color: '#342F29' },
   subtitle: { fontSize: 14, color: '#705849', marginTop: 5, marginBottom: 25 },
   menuContainer: { marginBottom: 30 },
-  menuItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    backgroundColor: '#FFFFFF',
-    padding: 20,
-    borderRadius: 12,
-    marginBottom: 12,
-    borderWidth: 1,
-    borderColor: '#EBE5DA',
-  },
+  menuItem: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', backgroundColor: '#FFFFFF', padding: 20, borderRadius: 12, marginBottom: 12, borderWidth: 1, borderColor: '#EBE5DA' },
   menuTitle: { fontSize: 16, fontWeight: 'bold', color: '#342F29' },
   menuSubtitle: { fontSize: 12, color: '#705849', marginTop: 4 },
 });

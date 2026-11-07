@@ -5,7 +5,8 @@ import { useEffect, useState } from 'react';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { Provider } from 'react-redux';
 import { PersistGate } from 'redux-persist/integration/react';
-import Toast from '../components/Toast'; // <-- Importamos el Toast
+import AchievementWatcher from '../components/AchievementWatcher';
+import Toast from '../components/Toast';
 import { supabase } from '../lib/supabase';
 import { persistor, store } from '../store';
 
@@ -101,8 +102,9 @@ export default function RootLayout() {
             <Stack.Screen name="settings-usage-tips" />
           </Stack>
           
-          {/* El Toast global que escucha a Redux */}
+          {/* Notificaciones y Vigilante de Logros */}
           <Toast />
+          <AchievementWatcher />
           
         </PersistGateComponent>
       </Provider>

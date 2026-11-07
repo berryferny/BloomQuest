@@ -1,12 +1,15 @@
 import { router } from 'expo-router';
 import { useState } from 'react';
 import { Alert, KeyboardAvoidingView, Platform, SafeAreaView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
-import { supabase } from '../lib/supabase'; // <-- IMPORTANTE
+import { useDispatch } from 'react-redux';
+import { supabase } from '../lib/supabase';
+import { setUserName } from '../store/habitsSlice';
 
 export default function LoginScreen() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
+  const dispatch = useDispatch();
 
   const handleLogin = async () => {
     if (!email || !password) {
@@ -14,11 +17,15 @@ export default function LoginScreen() {
       return;
     }
     setLoading(true);
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
+    
+    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
     
     if (error) {
       Alert.alert('Error de inicio de sesión', error.message);
     } else {
+      // Extraemos el nombre de los metadatos del usuario
+      const userName = data.user?.user_metadata?.full_name || 'Persona Bloom';
+      dispatch(setUserName(userName));
       router.replace('/home');
     }
     setLoading(false);
@@ -31,17 +38,22 @@ export default function LoginScreen() {
           <Text style={styles.logo}>BloomQuest</Text>
           <Text style={styles.slogan}>Pequeños hábitos, grandes cambios.</Text>
           <Text style={styles.title}>¡Hola de nuevo!</Text>
+
           <View style={styles.form}>
             <Text style={styles.label}>Correo electrónico</Text>
             <TextInput style={styles.input} placeholder="ejemplo@correo.com" placeholderTextColor="#9BAA91" keyboardType="email-address" autoCapitalize="none" value={email} onChangeText={setEmail} />
+
             <Text style={styles.label}>Contraseña</Text>
             <TextInput style={styles.input} placeholder="••••••••" placeholderTextColor="#9BAA91" secureTextEntry value={password} onChangeText={setPassword} />
+
             <TouchableOpacity style={styles.button} onPress={handleLogin} disabled={loading}>
               <Text style={styles.buttonText}>{loading ? 'Cargando...' : 'Iniciar sesión'}</Text>
             </TouchableOpacity>
+
             <TouchableOpacity style={styles.linkButton} onPress={() => router.push('/register')}>
               <Text style={styles.linkText}>¿No tienes cuenta? Regístrate</Text>
             </TouchableOpacity>
+            
             <TouchableOpacity style={styles.linkButton} onPress={() => router.push('/recover-password')}>
               <Text style={styles.linkText}>¿Olvidaste tu contraseña?</Text>
             </TouchableOpacity>

@@ -1,33 +1,46 @@
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
-import { Alert, SafeAreaView, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Alert, Platform, SafeAreaView, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 import BottomNav from '../components/BottomNav';
+import { supabase } from '../lib/supabase';
 import { logout } from '../store/authSlice';
 
 export default function ProfileScreen() {
   const { habits = [], coins = 0 } = useSelector((state: any) => state.habits);
   const dispatch = useDispatch();
 
-  // Cálculos para las estadísticas
   const completedHabits = habits.filter((h: any) => h.completed).length;
 
-  const handleLogout = () => {
-    Alert.alert(
-      "Cerrar sesión",
-      "¿Estás seguro que quieres salir de BloomQuest?",
-      [
-        { text: "Cancelar", style: "cancel" },
-        { 
-          text: "Salir", 
-          style: "destructive", 
-          onPress: () => {
-            dispatch(logout());
-            router.replace('/login');
-          } 
-        }
-      ]
-    );
+  const handleLogout = async () => {
+    // Función que cierra la sesión de verdad
+    const performLogout = async () => {
+      await supabase.auth.signOut(); // Cierra sesión en Supabase
+      dispatch(logout()); // Limpia Redux
+      router.replace('/login'); // Te manda al login
+    };
+
+    // Si estamos en la PC (Web), usamos una confirmación del navegador
+    if (Platform.OS === 'web') {
+      const confirm = window.confirm("¿Estás seguro que quieres salir de BloomQuest?");
+      if (confirm) {
+        await performLogout();
+      }
+    } else {
+      // Si estamos en el celular, usamos la alerta normal
+      Alert.alert(
+        "Cerrar sesión",
+        "¿Estás seguro que quieres salir de BloomQuest?",
+        [
+          { text: "Cancelar", style: "cancel" },
+          { 
+            text: "Salir", 
+            style: "destructive", 
+            onPress: performLogout 
+          }
+        ]
+      );
+    }
   };
 
   return (
@@ -38,7 +51,6 @@ export default function ProfileScreen() {
         <Text style={styles.title}>Mi perfil</Text>
         <Text style={styles.subtitle}>Tu recorrido y tus logros.</Text>
 
-        {/* Tarjeta de Aventura (Resumen) */}
         <View style={styles.adventureCard}>
           <Text style={styles.adventureTitle}>🌸 Mi aventura</Text>
           <View style={styles.statsRow}>
@@ -54,14 +66,13 @@ export default function ProfileScreen() {
           </View>
         </View>
 
-        {/* Opciones del menú (Simuladas para el diseño) */}
         <View style={styles.menuContainer}>
-          <TouchableOpacity style={styles.menuItem}>
+          <TouchableOpacity style={styles.menuItem} onPress={() => router.push('/achievements')}>
             <Text style={styles.menuText}>Mis logros</Text>
             <Ionicons name="chevron-forward" size={20} color="#9BAA91" />
           </TouchableOpacity>
 
-          <TouchableOpacity style={styles.menuItem}>
+          <TouchableOpacity style={styles.menuItem} onPress={() => router.push('/stats')}>
             <Text style={styles.menuText}>Estadísticas</Text>
             <Ionicons name="chevron-forward" size={20} color="#9BAA91" />
           </TouchableOpacity>
@@ -72,7 +83,6 @@ export default function ProfileScreen() {
           </TouchableOpacity>
         </View>
 
-        {/* Botón Cerrar Sesión */}
         <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
           <Text style={styles.logoutText}>Cerrar sesión</Text>
         </TouchableOpacity>
@@ -89,40 +99,16 @@ const styles = StyleSheet.create({
   logoText: { fontSize: 32, fontWeight: 'bold', color: '#342F29', marginBottom: 10 },
   title: { fontSize: 24, fontWeight: 'bold', color: '#342F29' },
   subtitle: { fontSize: 14, color: '#705849', marginTop: 5, marginBottom: 25 },
-  
-  adventureCard: {
-    backgroundColor: '#EBE5DA',
-    padding: 20,
-    borderRadius: 15,
-    marginBottom: 30,
-  },
+  adventureCard: { backgroundColor: '#EBE5DA', padding: 20, borderRadius: 15, marginBottom: 30 },
   adventureTitle: { fontSize: 18, fontWeight: 'bold', color: '#342F29', marginBottom: 15 },
   statsRow: { flexDirection: 'row', justifyContent: 'space-around', alignItems: 'center' },
   statItem: { alignItems: 'center' },
   statValue: { fontSize: 24, fontWeight: 'bold', color: '#342F29', marginBottom: 5 },
   statLabel: { fontSize: 12, color: '#705849' },
   statDivider: { width: 1, height: 40, backgroundColor: '#D3C9BD' },
-
   menuContainer: { marginBottom: 30 },
-  menuItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    backgroundColor: '#FFFFFF',
-    padding: 18,
-    borderRadius: 10,
-    marginBottom: 10,
-    borderWidth: 1,
-    borderColor: '#EBE5DA',
-  },
+  menuItem: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', backgroundColor: '#FFFFFF', padding: 18, borderRadius: 10, marginBottom: 10, borderWidth: 1, borderColor: '#EBE5DA' },
   menuText: { fontSize: 16, color: '#342F29', fontWeight: '500' },
-
-  logoutButton: {
-    padding: 15,
-    borderRadius: 10,
-    alignItems: 'center',
-    borderWidth: 1,
-    borderColor: '#D3C9BD',
-  },
+  logoutButton: { padding: 15, borderRadius: 10, alignItems: 'center', borderWidth: 1, borderColor: '#D3C9BD' },
   logoutText: { color: '#705849', fontSize: 16, fontWeight: 'bold' },
 });

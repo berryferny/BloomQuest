@@ -2,15 +2,25 @@ import { Ionicons } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
 import { router } from 'expo-router';
 import { useState } from 'react';
-import { Alert, Image, SafeAreaView, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Alert, Image, Modal, SafeAreaView, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 import BottomNav from '../components/BottomNav';
 import { supabase } from '../lib/supabase';
 import { logout, setAvatarUrl } from '../store/habitsSlice';
 
+const DEFAULT_AVATARS = [
+  "https://lzlkajsrqjevbmnvdnro.supabase.co/storage/v1/object/public/avatars/avatar_boy.jpg",
+  "https://lzlkajsrqjevbmnvdnro.supabase.co/storage/v1/object/public/avatars/avatar_fox.jpg",
+  "https://lzlkajsrqjevbmnvdnro.supabase.co/storage/v1/object/public/avatars/avatar_girl.jpg",
+  "https://lzlkajsrqjevbmnvdnro.supabase.co/storage/v1/object/public/avatars/avatar_man.jpg",
+  "https://lzlkajsrqjevbmnvdnro.supabase.co/storage/v1/object/public/avatars/avatar_woman.jpg"
+];
+
 export default function ProfileScreen() {
   const { habits = [], coins = 0, avatarUrl = null, userName = 'Persona Bloom' } = useSelector((state: any) => state.habits);
   const dispatch = useDispatch();
+  
+  const [modalVisible, setModalVisible] = useState(false);
   const [uploading, setUploading] = useState(false);
 
   const completedHabits = habits.filter((h: any) => h.completed).length;
@@ -26,12 +36,19 @@ export default function ProfileScreen() {
     ]);
   };
 
+  // Función que guarda el avatar al instante en Redux y Supabase
+  const saveAvatarToDb = async (url: string) => {
+    dispatch(setAvatarUrl(url));
+    setModalVisible(false);
+    const { data: { user } } = await supabase.auth.getUser();
+    if (user) {
+      await supabase.from('profiles').update({ avatar_url: url }).eq('id', user.id);
+    }
+  };
+
   const pickImage = async () => {
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
-    if (status !== 'granted') {
-      Alert.alert('Permiso denegado', 'Necesitamos acceso a tus fotos para cambiar el avatar.');
-      return;
-    }
+    if (status !== 'granted') return;
 
     let result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ['images'],
@@ -57,19 +74,16 @@ export default function ProfileScreen() {
       
       const fileExt = uri.split('.').pop();
       const fileName = `${user.id}-${Date.now()}.${fileExt}`;
-      const filePath = `${fileName}`;
 
       const { error: uploadError } = await supabase.storage
         .from('avatars')
-        .upload(filePath, arrayBuffer, { contentType: `image/${fileExt}` });
+        .upload(fileName, arrayBuffer, { contentType: `image/${fileExt}` });
 
       if (uploadError) throw uploadError;
 
-      const { data } = supabase.storage.from('avatars').getPublicUrl(filePath);
-      
-      dispatch(setAvatarUrl(data.publicUrl));
-      Alert.alert("¡Listo!", "Tu foto de perfil ha sido actualizada.");
-
+      const { data } = supabase.storage.from('avatars').getPublicUrl(fileName);
+      await saveAvatarToDb(data.publicUrl); // Guarda en DB al instante
+      Alert.alert("¡Listo!", "Foto de perfil actualizada.");
     } catch (error) {
       console.error(error);
       Alert.alert("Error", "No se pudo subir la imagen.");
@@ -88,7 +102,8 @@ export default function ProfileScreen() {
             <Text style={styles.title}>Mi perfil</Text>
           </View>
           
-          <TouchableOpacity style={styles.avatarContainer} onPress={pickImage} disabled={uploading}>
+          {/* FOTO DE PERFIL CON BOTÓN DE CÁMARA */}
+          <TouchableOpacity style={styles.avatarContainer} onPress={() => setModalVisible(true)} disabled={uploading}>
             {avatarUrl ? (
               <Image source={{ uri: avatarUrl }} style={styles.avatarImage} />
             ) : (
@@ -120,16 +135,36 @@ export default function ProfileScreen() {
         </View>
 
         <View style={styles.menuContainer}>
+          {/* BOTÓN DIRECTO A EDITAR DATOS */}
+          <TouchableOpacity style={styles.menuItem} onPress={() => router.push('/settings-personal-data')}>
+            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+              <Ionicons name="person-outline" size={20} color="#705849" style={{ marginRight: 10 }} />
+              <Text style={styles.menuText}>Editar nombre y correo</Text>
+            </View>
+            <Ionicons name="chevron-forward" size={20} color="#9BAA91" />
+          </TouchableOpacity>
+
           <TouchableOpacity style={styles.menuItem} onPress={() => router.push('/achievements')}>
-            <Text style={styles.menuText}>Mis logros</Text>
+            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+              <Ionicons name="trophy-outline" size={20} color="#705849" style={{ marginRight: 10 }} />
+              <Text style={styles.menuText}>Mis logros</Text>
+            </View>
             <Ionicons name="chevron-forward" size={20} color="#9BAA91" />
           </TouchableOpacity>
+          
           <TouchableOpacity style={styles.menuItem} onPress={() => router.push('/stats')}>
-            <Text style={styles.menuText}>Estadísticas</Text>
+            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+              <Ionicons name="bar-chart-outline" size={20} color="#705849" style={{ marginRight: 10 }} />
+              <Text style={styles.menuText}>Estadísticas</Text>
+            </View>
             <Ionicons name="chevron-forward" size={20} color="#9BAA91" />
           </TouchableOpacity>
+          
           <TouchableOpacity style={styles.menuItem} onPress={() => router.push('/settings')}>
-            <Text style={styles.menuText}>Configuración</Text>
+            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+              <Ionicons name="settings-outline" size={20} color="#705849" style={{ marginRight: 10 }} />
+              <Text style={styles.menuText}>Configuración</Text>
+            </View>
             <Ionicons name="chevron-forward" size={20} color="#9BAA91" />
           </TouchableOpacity>
         </View>
@@ -140,6 +175,38 @@ export default function ProfileScreen() {
 
       </ScrollView>
       <BottomNav />
+
+      {/* MODAL PARA CAMBIAR EL AVATAR */}
+      <Modal visible={modalVisible} transparent animationType="slide">
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <Text style={styles.modalTitle}>Cambiar foto de perfil</Text>
+            
+            <TouchableOpacity style={styles.uploadGalleryBtn} onPress={pickImage} disabled={uploading}>
+              <Ionicons name="image-outline" size={20} color="#FFF" />
+              <Text style={styles.uploadGalleryText}>{uploading ? 'Subiendo...' : 'Subir de mi galería'}</Text>
+            </TouchableOpacity>
+
+            <Text style={[styles.label, { marginTop: 20, textAlign: 'center' }]}>O elige uno de nuestros avatares</Text>
+            <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.avatarList}>
+              {DEFAULT_AVATARS.map((url, index) => (
+                <TouchableOpacity 
+                  key={index} 
+                  style={[styles.avatarOption, avatarUrl === url && styles.avatarOptionSelected]} 
+                  onPress={() => saveAvatarToDb(url)}
+                >
+                  <Image source={{ uri: url }} style={styles.avatarThumb} />
+                </TouchableOpacity>
+              ))}
+            </ScrollView>
+
+            <TouchableOpacity style={styles.closeButton} onPress={() => setModalVisible(false)}>
+              <Text style={styles.closeButtonText}>Cancelar</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
+
     </SafeAreaView>
   );
 }
@@ -153,9 +220,9 @@ const styles = StyleSheet.create({
   subtitle: { fontSize: 14, color: '#705849', marginBottom: 25 },
   
   avatarContainer: { position: 'relative' },
-  avatarImage: { width: 70, height: 70, borderRadius: 35, borderWidth: 2, borderColor: '#9BAA91' },
-  avatarPlaceholder: { width: 70, height: 70, borderRadius: 35, backgroundColor: '#EBE5DA', justifyContent: 'center', alignItems: 'center', borderWidth: 2, borderColor: '#9BAA91' },
-  editIcon: { position: 'absolute', bottom: 0, right: 0, backgroundColor: '#705849', width: 24, height: 24, borderRadius: 12, justifyContent: 'center', alignItems: 'center', borderWidth: 2, borderColor: '#F8F5EF' },
+  avatarImage: { width: 80, height: 80, borderRadius: 40, borderWidth: 2, borderColor: '#9BAA91' },
+  avatarPlaceholder: { width: 80, height: 80, borderRadius: 40, backgroundColor: '#EBE5DA', justifyContent: 'center', alignItems: 'center', borderWidth: 2, borderColor: '#9BAA91' },
+  editIcon: { position: 'absolute', bottom: 0, right: 0, backgroundColor: '#705849', width: 26, height: 26, borderRadius: 13, justifyContent: 'center', alignItems: 'center', borderWidth: 2, borderColor: '#F8F5EF' },
 
   adventureCard: { backgroundColor: '#EBE5DA', padding: 20, borderRadius: 15, marginBottom: 30 },
   adventureTitle: { fontSize: 18, fontWeight: 'bold', color: '#342F29', marginBottom: 15 },
@@ -164,9 +231,22 @@ const styles = StyleSheet.create({
   statValue: { fontSize: 24, fontWeight: 'bold', color: '#342F29', marginBottom: 5 },
   statLabel: { fontSize: 12, color: '#705849' },
   statDivider: { width: 1, height: 40, backgroundColor: '#D3C9BD' },
+  
   menuContainer: { marginBottom: 30 },
   menuItem: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', backgroundColor: '#FFFFFF', padding: 18, borderRadius: 10, marginBottom: 10, borderWidth: 1, borderColor: '#EBE5DA' },
   menuText: { fontSize: 16, color: '#342F29', fontWeight: '500' },
   logoutButton: { padding: 15, borderRadius: 10, alignItems: 'center', borderWidth: 1, borderColor: '#D3C9BD' },
   logoutText: { color: '#705849', fontSize: 16, fontWeight: 'bold' },
+
+  modalOverlay: { flex: 1, backgroundColor: 'rgba(52, 47, 41, 0.7)', justifyContent: 'flex-end' },
+  modalContent: { backgroundColor: '#F8F5EF', borderTopLeftRadius: 30, borderTopRightRadius: 30, padding: 25, minHeight: 350 },
+  modalTitle: { fontSize: 22, fontWeight: 'bold', color: '#342F29', marginBottom: 20, textAlign: 'center' },
+  uploadGalleryBtn: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', backgroundColor: '#705849', padding: 15, borderRadius: 10, marginBottom: 10 },
+  uploadGalleryText: { color: '#FFF', fontWeight: 'bold', marginLeft: 10, fontSize: 16 },
+  avatarList: { flexDirection: 'row', marginTop: 10, marginBottom: 20 },
+  avatarOption: { marginRight: 15, borderWidth: 3, borderColor: 'transparent', borderRadius: 35, padding: 2 },
+  avatarOptionSelected: { borderColor: '#9BAA91' },
+  avatarThumb: { width: 60, height: 60, borderRadius: 30 },
+  closeButton: { padding: 15, backgroundColor: '#EBE5DA', borderRadius: 10, alignItems: 'center', marginTop: 10 },
+  closeButtonText: { color: '#705849', fontSize: 16, fontWeight: 'bold' },
 });

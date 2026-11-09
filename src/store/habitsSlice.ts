@@ -1,6 +1,5 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { addHabitToDb, deleteHabitFromDb, toggleHabitInDb, updateHabitInDb } from '../lib/habitsDb';
-import { supabase } from '../lib/supabase';
 
 export interface Habit { id: string; name: string; completed: boolean; days: string[]; time: string; }
 interface MoodEntry { id: string; date: string; mood: string; emoji: string; }
@@ -25,23 +24,6 @@ interface HabitsState {
 const initialState: HabitsState = {
   habits: [], coins: 100, seedInventory: [], garden: [null, null, null, null, null, null], completedMissions: [], moodHistory: [], streak: 0, lastLoginDate: null, userName: 'Persona Bloom', lastHabitResetDate: null,
   toastMessage: null, toastVisible: false, avatarUrl: null,
-};
-
-// Función maestra para guardar todo en Supabase sin errores de Proxy
-const syncAllProfileData = async (state: HabitsState) => {
-  const { data: { user } } = await supabase.auth.getUser();
-  if (user) {
-    const safeState = JSON.parse(JSON.stringify({
-      coins: state.coins,
-      garden: state.garden,
-      inventory: state.seedInventory,
-      completed_missions: state.completedMissions,
-      mood_history: state.moodHistory,
-      streak: state.streak,
-      last_login_date: state.lastLoginDate
-    }));
-    await supabase.from('profiles').update(safeState).eq('id', user.id);
-  }
 };
 
 const habitsSlice = createSlice({
@@ -85,26 +67,25 @@ const habitsSlice = createSlice({
         habit.completed = !habit.completed;
         state.coins += habit.completed ? 10 : -10;
         toggleHabitInDb(habit.id, habit.completed); 
-        syncAllProfileData(state); // Guardar monedas
       }
     },
-    deleteHabit: (state, action) => { state.habits = state.habits.filter((h) => h.id !== action.payload); deleteHabitFromDb(action.payload); },
+    deleteHabit: (state, action) => { 
+      state.habits = state.habits.filter((h) => h.id !== action.payload); 
+      deleteHabitFromDb(action.payload); 
+    },
     resetHabitsDaily: (state) => {
       const today = new Date().toDateString();
       if (state.lastHabitResetDate !== today) { 
         state.habits.forEach((h) => { h.completed = false; }); 
         state.completedMissions = []; 
         state.lastHabitResetDate = today; 
-        syncAllProfileData(state); // Guardar el reinicio de misiones
       }
     },
-    
     buySeed: (state, action: PayloadAction<{ type: string; price: number }>) => {
       if (state.coins >= action.payload.price) {
         state.coins -= action.payload.price;
         if (!state.seedInventory) state.seedInventory = [];
         state.seedInventory.push(action.payload.type);
-        syncAllProfileData(state); // Guardar monedas y semillas
       }
     },
     plantSeed: (state, action) => {
@@ -113,8 +94,10 @@ const habitsSlice = createSlice({
       const seedIndex = state.seedInventory.indexOf(action.payload.type);
       if (seedIndex !== -1) {
         state.seedInventory.splice(seedIndex, 1);
-        state.garden[action.payload.index] = { id: Date.now().toString(), type: action.payload.type, emoji: action.payload.emoji, stage: 0, maxStage: action.payload.maxStage, isBloomed: false, lastWateredDate: undefined };
-        syncAllProfileData(state); // Guardar jardín
+        state.garden[action.payload.index] = { 
+          id: Date.now().toString(), type: action.payload.type, emoji: action.payload.emoji, 
+          stage: 0, maxStage: action.payload.maxStage, isBloomed: false, lastWateredDate: undefined 
+        };
       }
     },
     waterPlant: (state, action) => {
@@ -123,9 +106,12 @@ const habitsSlice = createSlice({
       if (plant && !plant.isBloomed) {
         const today = new Date().toDateString();
         if (plant.lastWateredDate !== today) {
-          plant.stage += 1; plant.lastWateredDate = today;
-          if (plant.stage >= plant.maxStage) { plant.isBloomed = true; state.coins += 10; }
-          syncAllProfileData(state); // Guardar crecimiento y monedas
+          plant.stage += 1; 
+          plant.lastWateredDate = today;
+          if (plant.stage >= plant.maxStage) { 
+            plant.isBloomed = true; 
+            state.coins += 10; 
+          }
         }
       }
     },
@@ -134,35 +120,33 @@ const habitsSlice = createSlice({
       if (!state.completedMissions.includes(action.payload.missionId)) { 
         state.completedMissions.push(action.payload.missionId); 
         state.coins += action.payload.reward; 
-        syncAllProfileData(state); // Guardar misión y monedas
       }
     },
     addMood: (state, action) => {
       if (!state.moodHistory) state.moodHistory = [];
-      state.moodHistory.unshift({ id: Date.now().toString(), date: new Date().toLocaleDateString('es-ES', { weekday: 'short', day: 'numeric', month: 'short' }), mood: action.payload.mood, emoji: action.payload.emoji });
-      syncAllProfileData(state); // Guardar emociones
+      state.moodHistory.unshift({ 
+        id: Date.now().toString(), 
+        date: new Date().toLocaleDateString('es-ES', { weekday: 'short', day: 'numeric', month: 'short' }), 
+        mood: action.payload.mood, 
+        emoji: action.payload.emoji 
+      });
     },
     deleteMood: (state, action: PayloadAction<any>) => {
       if (typeof action.payload === 'string') state.moodHistory = state.moodHistory.filter((m) => m.id !== action.payload);
       else state.moodHistory.splice(action.payload, 1);
-      syncAllProfileData(state); // Guardar borrado de emoción
     },
-    addCoins: (state, action) => { 
-      state.coins += action.payload; 
-      syncAllProfileData(state);
-    },
+    addCoins: (state, action) => { state.coins += action.payload; },
     checkDailyStreak: (state) => {
       const today = new Date().toDateString();
       if (!state.lastLoginDate) { 
         state.streak = 1; state.lastLoginDate = today; state.coins += 10; 
-        syncAllProfileData(state);
       } 
       else if (state.lastLoginDate !== today) {
         const lastDate = new Date(state.lastLoginDate);
         const diffDays = Math.ceil(Math.abs(new Date(today).getTime() - lastDate.getTime()) / (1000 * 60 * 60 * 24));
-        if (diffDays === 1) { state.streak += 1; state.coins += 20; } else { state.streak = 1; state.coins += 10; }
+        if (diffDays === 1) { state.streak += 1; state.coins += 20; } 
+        else { state.streak = 1; state.coins += 10; }
         state.lastLoginDate = today;
-        syncAllProfileData(state);
       }
     },
     setUserName: (state, action) => { state.userName = action.payload; }

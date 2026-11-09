@@ -13,7 +13,7 @@ import { supabase } from '../lib/supabase';
 import { persistor, store } from '../store';
 
 const PersistGateComponent = PersistGate as any;
-const { width: screenWidth } = Dimensions.get('window'); // <-- Importamos Dimensiones
+const { width: screenWidth } = Dimensions.get('window');
 
 export default function RootLayout() {
   const [session, setSession] = useState<Session | null>(null);
@@ -23,9 +23,15 @@ export default function RootLayout() {
   const router = useRouter();
 
   useEffect(() => {
+    const timeout = setTimeout(() => setIsLoading(false), 3000);
+
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
       setIsLoading(false);
+      clearTimeout(timeout);
+    }).catch(() => {
+      setIsLoading(false);
+      clearTimeout(timeout);
     });
 
     const { data: authListener } = supabase.auth.onAuthStateChange((_event, session) => {
@@ -34,19 +40,23 @@ export default function RootLayout() {
 
     return () => {
       authListener.subscription.unsubscribe();
+      clearTimeout(timeout);
     };
   }, []);
 
   useEffect(() => {
     if (isLoading) return;
 
-    const currentRoute = segments[0]; 
+    // CORRECCIÓN: Si la ruta es (tabs), la ignoramos y tratamos como index
+    let currentRoute = segments.length > 0 ? segments[0] : 'index';
+    if (currentRoute === '(tabs)') currentRoute = 'index';
+
     const publicRoutes = ['index', 'login', 'register', 'recover-password', 'reset-password'];
     const inPublicRoute = publicRoutes.includes(currentRoute);
 
     if (!session && !inPublicRoute) {
       router.replace('/login');
-    } else if (session && inPublicRoute) {
+    } else if (session && (currentRoute === 'login' || currentRoute === 'index' || currentRoute === 'register')) {
       router.replace('/home');
     }
   }, [session, segments, isLoading, router]);
@@ -130,7 +140,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   loadingLogo: {
-    width: screenWidth * 0.7, // Adaptable al 70% de la pantalla
+    width: screenWidth * 0.7,
     height: (screenWidth * 0.7) / 2,
   }
 });

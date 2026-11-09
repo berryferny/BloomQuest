@@ -2,9 +2,8 @@ import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import { ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import BottomNav from '../components/BottomNav';
-import BQLogo from '../components/BQLogo';
-import { exploreStyles as styles } from '../styles/explore.styles';
+import BQLogo from '../../components/BQLogo';
+import { exploreStyles as styles } from '../../styles/explore.styles';
 
 export default function ExploreScreen() {
   return (
@@ -14,19 +13,19 @@ export default function ExploreScreen() {
         <Text style={styles.title}>Explora BloomQuest ✨</Text>
         <Text style={styles.subtitle}>Encuentra nuevas formas de crecer, aprender y cuidarte.</Text>
 
-        <TouchableOpacity style={styles.card} onPress={() => router.push('/habits')} activeOpacity={0.8}>
+        <TouchableOpacity style={styles.card} onPress={() => router.push('/(tabs)/habits')} activeOpacity={0.8}>
           <View style={styles.iconCircle}><Ionicons name="checkmark-done" size={25} color="#705849" /></View>
           <View style={styles.cardInfo}><Text style={styles.cardTitle}>Mis hábitos</Text><Text style={styles.cardText}>Organiza tus actividades y gana monedas.</Text></View>
           <Ionicons name="chevron-forward" size={21} color="#9BAA91" />
         </TouchableOpacity>
 
-        <TouchableOpacity style={styles.card} onPress={() => router.push('/garden')} activeOpacity={0.8}>
+        <TouchableOpacity style={styles.card} onPress={() => router.push('/(tabs)/garden')} activeOpacity={0.8}>
           <View style={styles.iconCircle}><Ionicons name="leaf" size={25} color="#705849" /></View>
           <View style={styles.cardInfo}><Text style={styles.cardTitle}>Mi jardín</Text><Text style={styles.cardText}>Visita el espacio que crecerá contigo.</Text></View>
           <Ionicons name="chevron-forward" size={21} color="#9BAA91" />
         </TouchableOpacity>
 
-        <TouchableOpacity style={styles.card} onPress={() => router.push('/profile')} activeOpacity={0.8}>
+        <TouchableOpacity style={styles.card} onPress={() => router.push('/(tabs)/profile')} activeOpacity={0.8}>
           <View style={styles.iconCircle}><Ionicons name="person" size={25} color="#705849" /></View>
           <View style={styles.cardInfo}><Text style={styles.cardTitle}>Mi perfil</Text><Text style={styles.cardText}>Consulta tu espacio personal.</Text></View>
           <Ionicons name="chevron-forward" size={21} color="#9BAA91" />
@@ -68,7 +67,6 @@ export default function ExploreScreen() {
           <Text style={styles.comingSoonText}>Estamos preparando nuevas actividades y herramientas para acompañarte en tu crecimiento.</Text>
         </View>
       </ScrollView>
-      <BottomNav />
     </SafeAreaView>
   );
 }

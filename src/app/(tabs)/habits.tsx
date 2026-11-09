@@ -1,12 +1,10 @@
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import { useState } from 'react';
-import { Modal, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { Modal, SafeAreaView, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
-import BottomNav from '../components/BottomNav';
-import BQLogo from '../components/BQLogo';
-import { deleteHabit, toggleHabit } from '../store/habitsSlice';
+import BQLogo from '../../components/BQLogo';
+import { deleteHabit, toggleHabit } from '../../store/habitsSlice';
 
 export default function HabitsScreen() {
   const { habits = [] } = useSelector((state: any) => state.habits);
@@ -97,7 +95,6 @@ export default function HabitsScreen() {
           <Text style={styles.addButtonText}>Agregar un hábito</Text>
         </TouchableOpacity>
       </ScrollView>
-      <BottomNav />
 
       <Modal visible={!!habitToDelete} transparent={true} animationType="fade" onRequestClose={() => setHabitToDelete(null)}>
         <View style={styles.modalOverlay}>

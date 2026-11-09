@@ -3,12 +3,11 @@ import * as ImagePicker from 'expo-image-picker';
 import { router } from 'expo-router';
 import { useState } from 'react';
 import { Alert, Image, Modal, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context'; // <-- CORRECTO
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useDispatch, useSelector } from 'react-redux';
-import BottomNav from '../components/BottomNav';
-import BQLogo from '../components/BQLogo';
-import { supabase } from '../lib/supabase';
-import { logout, setAvatarUrl } from '../store/habitsSlice';
+import BQLogo from '../../components/BQLogo';
+import { supabase } from '../../lib/supabase';
+import { logout, setAvatarUrl } from '../../store/habitsSlice';
 
 const DEFAULT_AVATARS = [
   "https://lzlkajsrqjevbmnvdnro.supabase.co/storage/v1/object/public/avatars/avatar_boy.jpg",
@@ -127,7 +126,6 @@ export default function ProfileScreen() {
           <Text style={styles.logoutText}>Cerrar sesión</Text>
         </TouchableOpacity>
       </ScrollView>
-      <BottomNav />
 
       <Modal visible={modalVisible} transparent animationType="slide">
         <View style={styles.modalOverlay}>

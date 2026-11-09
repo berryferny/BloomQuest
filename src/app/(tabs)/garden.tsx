@@ -1,16 +1,15 @@
 import { router } from 'expo-router';
 import { useState } from 'react';
-import { Image, ImageBackground, Modal, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Image, Modal, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useDispatch, useSelector } from 'react-redux';
-import BottomNav from '../components/BottomNav';
-import BQLogo from '../components/BQLogo';
-import { plantSeed, waterPlant } from '../store/habitsSlice';
+import BQLogo from '../../components/BQLogo';
+import { plantSeed, waterPlant } from '../../store/habitsSlice';
 
 const SEED_DATA: any = {
-  'Semilla de Tulipán': { maxStage: 3, img: require('../../assets/images/plants/tulip.png') },
-  'Semilla de Girasol': { maxStage: 4, img: require('../../assets/images/plants/sunflower.png') },
-  'Semilla de Rosa': { maxStage: 5, img: require('../../assets/images/plants/rose.png') },
+  'Semilla de Tulipán': { maxStage: 3, img: require('../../../assets/images/plants/tulip.png') }, // <-- Ojo aquí: 3 niveles atrás
+  'Semilla de Girasol': { maxStage: 4, img: require('../../../assets/images/plants/sunflower.png') },
+  'Semilla de Rosa': { maxStage: 5, img: require('../../../assets/images/plants/rose.png') },
 };
 
 export default function GardenScreen() {
@@ -41,15 +40,13 @@ export default function GardenScreen() {
   };
 
   return (
-    <ImageBackground 
-      source={require('../../assets/images/plants/grass_bg.png')} 
-      style={styles.backgroundImage}
-      resizeMode="cover" 
-    >
-      {/* edges={['top']} asegura que el logo y monedas no se suban a la barra de estado */}
+    <View style={styles.mainContainer}>
+      <Image 
+        source={require('../../../assets/images/plants/grass_bg.png')} 
+        style={styles.backgroundImage} 
+        resizeMode="cover" 
+      />
       <SafeAreaView style={styles.container} edges={['top']}>
-        
-        {/* HUD Superior */}
         <View style={styles.topHud}>
           <BQLogo size={40} />
           <View style={styles.coinsBadge}>
@@ -57,7 +54,6 @@ export default function GardenScreen() {
           </View>
         </View>
 
-        {/* Área de Scroll de las macetas */}
         <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
           <View style={styles.gardenGrid}>
             {safeGarden.map((plant: any, index: number) => {
@@ -68,11 +64,11 @@ export default function GardenScreen() {
               return (
                 <View key={index} style={styles.plotContainer}>
                   <TouchableOpacity style={styles.plot} onPress={() => plant ? handleWater(index) : openPlantModal(index)} activeOpacity={0.9}>
-                    <Image source={require('../../assets/images/plants/soil.png')} style={styles.soilImage} resizeMode="contain" />
+                    <Image source={require('../../../assets/images/plants/soil.png')} style={styles.soilImage} resizeMode="contain" />
                     {plant && (
                       <View style={[styles.plantOverlay, { transform: [{ scale: plantScale }] }]}>
                         <Image 
-                          source={plant.isBloomed ? SEED_DATA[plant.type]?.img : require('../../assets/images/plants/sprout.png')} 
+                          source={plant.isBloomed ? SEED_DATA[plant.type]?.img : require('../../../assets/images/plants/sprout.png')} 
                           style={styles.plantImage} resizeMode="contain"
                         />
                       </View>
@@ -91,7 +87,6 @@ export default function GardenScreen() {
           </View>
         </ScrollView>
 
-        {/* Barra de herramientas inferior */}
         <View style={styles.toolbarContainer}>
           <View style={styles.toolbar}>
             <TouchableOpacity style={styles.toolButton} onPress={() => router.push('/shop')}>
@@ -105,8 +100,6 @@ export default function GardenScreen() {
             </TouchableOpacity>
           </View>
         </View>
-
-        <BottomNav />
 
         <Modal visible={modalVisible} transparent animationType="slide">
           <View style={styles.modalOverlay}>
@@ -129,18 +122,17 @@ export default function GardenScreen() {
           </View>
         </Modal>
       </SafeAreaView>
-    </ImageBackground>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  backgroundImage: { flex: 1, width: '100%', height: '100%' },
+  mainContainer: { flex: 1, backgroundColor: '#A3C293' },
+  backgroundImage: { position: 'absolute', width: '100%', height: '100%' },
   container: { flex: 1 },
-  
   topHud: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 20, paddingTop: 15, paddingBottom: 10 },
   coinsBadge: { backgroundColor: '#F8F5EF', paddingHorizontal: 15, paddingVertical: 8, borderRadius: 20, borderWidth: 2, borderColor: '#705849', shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.3, elevation: 4 },
   coinsText: { fontSize: 16, fontWeight: 'bold', color: '#342F29' },
-
   scrollContent: { paddingHorizontal: 20, paddingBottom: 20 },
   gardenGrid: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between' },
   plotContainer: { width: '48%', aspectRatio: 1, marginBottom: 15 },
@@ -152,14 +144,10 @@ const styles = StyleSheet.create({
   waterText: { fontSize: 16 },
   wateredIndicator: { position: 'absolute', top: '5%', right: '5%', backgroundColor: '#EBE5DA', borderRadius: 10, paddingHorizontal: 8, paddingVertical: 4, borderWidth: 1, borderColor: '#D3C9BD' },
   wateredText: { fontSize: 10, fontWeight: 'bold', color: '#705849' },
-
   toolbarContainer: { width: '100%', alignItems: 'center', marginBottom: 10 },
-  toolbar: { 
-    flexDirection: 'row', justifyContent: 'space-around', alignItems: 'center', backgroundColor: '#F8F5EF', paddingVertical: 12, borderRadius: 30, borderWidth: 3, borderColor: '#D3C9BD', width: '80%', shadowColor: '#000', shadowOffset: { width: 0, height: 5 }, shadowOpacity: 0.3, elevation: 8 
-  },
+  toolbar: { flexDirection: 'row', justifyContent: 'space-around', alignItems: 'center', backgroundColor: '#F8F5EF', paddingVertical: 12, borderRadius: 30, borderWidth: 3, borderColor: '#D3C9BD', width: '80%', shadowColor: '#000', shadowOffset: { width: 0, height: 5 }, shadowOpacity: 0.3, elevation: 8 },
   toolButton: { alignItems: 'center', justifyContent: 'center' },
   toolIcon: { fontSize: 30 },
-
   modalOverlay: { flex: 1, backgroundColor: 'rgba(52, 47, 41, 0.7)', justifyContent: 'flex-end' },
   modalContent: { backgroundColor: '#F8F5EF', borderTopLeftRadius: 30, borderTopRightRadius: 30, padding: 25, minHeight: 350 },
   modalTitle: { fontSize: 22, fontWeight: 'bold', color: '#342F29', marginBottom: 20, textAlign: 'center' },

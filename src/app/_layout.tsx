@@ -47,9 +47,8 @@ export default function RootLayout() {
   useEffect(() => {
     if (isLoading) return;
 
-    // CORRECCIÓN: Si la ruta es (tabs), la ignoramos y tratamos como index
     let currentRoute = segments.length > 0 ? segments[0] : 'index';
-    if (currentRoute === '(tabs)') currentRoute = 'index';
+    if (currentRoute === '(tabs)') currentRoute = 'index'; // Si estamos en tabs, dejamos que fluya
 
     const publicRoutes = ['index', 'login', 'register', 'recover-password', 'reset-password'];
     const inPublicRoute = publicRoutes.includes(currentRoute);
@@ -57,7 +56,7 @@ export default function RootLayout() {
     if (!session && !inPublicRoute) {
       router.replace('/login');
     } else if (session && (currentRoute === 'login' || currentRoute === 'index' || currentRoute === 'register')) {
-      router.replace('/home');
+      router.replace('/(tabs)/home'); // Lo mandamos a la ruta de tabs
     }
   }, [session, segments, isLoading, router]);
 
@@ -87,17 +86,17 @@ export default function RootLayout() {
             <Stack.Screen name="recover-password" />
             <Stack.Screen name="reset-password" />
             <Stack.Screen name="onboarding" />
-            <Stack.Screen name="home" />
-            <Stack.Screen name="habits" />
+            
+            {/* AQUÍ SE AGRUPA EL MENÚ INFERIOR */}
+            <Stack.Screen name="(tabs)" />
+
+            {/* Pantallas secundarias (sin menú inferior) */}
             <Stack.Screen name="create-habit" />
-            <Stack.Screen name="explore" />
             <Stack.Screen name="breathe" />
-            <Stack.Screen name="garden" />
             <Stack.Screen name="shop" />
             <Stack.Screen name="missions" />
             <Stack.Screen name="tips" />
             <Stack.Screen name="tip-detail" />
-            <Stack.Screen name="profile" />
             <Stack.Screen name="achievements" />
             <Stack.Screen name="stats" />
             <Stack.Screen name="mood" />

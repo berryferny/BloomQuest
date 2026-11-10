@@ -2,7 +2,7 @@ import { Session } from '@supabase/supabase-js';
 import { Stack, useRouter, useSegments } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { useEffect, useState } from 'react';
-import { ActivityIndicator, Dimensions, Image, StyleSheet, View } from 'react-native';
+import { ActivityIndicator, Dimensions, Image, Platform, SafeAreaView, StyleSheet, View } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { Provider } from 'react-redux';
 import { PersistGate } from 'redux-persist/integration/react';
@@ -18,7 +18,7 @@ const { width: screenWidth } = Dimensions.get('window');
 export default function RootLayout() {
   const [session, setSession] = useState<Session | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  
+
   const segments = useSegments();
   const router = useRouter();
 
@@ -55,7 +55,7 @@ export default function RootLayout() {
 
     if (!session && !inPublicRoute) {
       router.replace('/login');
-    } else if (session && (currentRoute === 'login' || currentRoute === 'index' || currentRoute === 'register')) {
+    } else if (session && (currentRoute === 'login' || currentRoute === 'index' || currentRoute === 'register') && currentRoute.includes('(tabs)')) {
       router.replace('/(tabs)/home'); // Lo mandamos a la ruta de tabs
     }
   }, [session, segments, isLoading, router]);
@@ -63,9 +63,9 @@ export default function RootLayout() {
   if (isLoading) {
     return (
       <View style={styles.loadingContainer}>
-        <Image 
-          source={require('../../assets/images/logo-bloomquest.png')} 
-          style={styles.loadingLogo} 
+        <Image
+          source={require('../../assets/images/logo-bloomquest.png')}
+          style={styles.loadingLogo}
           resizeMode="contain"
         />
         <ActivityIndicator size="large" color="#705849" style={{ marginTop: 20 }} />
@@ -78,53 +78,53 @@ export default function RootLayout() {
       <Provider store={store}>
         <PersistGateComponent loading={null} persistor={persistor}>
           <StatusBar style="auto" />
-          
-          <Stack screenOptions={{ headerShown: false }}>
-            <Stack.Screen name="index" />
-            <Stack.Screen name="login" />
-            <Stack.Screen name="register" />
-            <Stack.Screen name="recover-password" />
-            <Stack.Screen name="reset-password" />
-            <Stack.Screen name="onboarding" />
-            
-            {/* AQUÍ SE AGRUPA EL MENÚ INFERIOR */}
-            <Stack.Screen name="(tabs)" />
+          <SafeAreaView style={{ flex: 1, paddingBottom: Platform.OS === 'android' ? 50 : 0, paddingTop: Platform.OS === 'android' ? 35 : 0 }}>
+            <Stack screenOptions={{ headerShown: false }}>
+              <Stack.Screen name="index" />
+              <Stack.Screen name="login" />
+              <Stack.Screen name="register" />
+              <Stack.Screen name="recover-password" />
+              <Stack.Screen name="reset-password" />
+              <Stack.Screen name="onboarding" />
 
-            {/* Pantallas secundarias (sin menú inferior) */}
-            <Stack.Screen name="create-habit" />
-            <Stack.Screen name="breathe" />
-            <Stack.Screen name="shop" />
-            <Stack.Screen name="missions" />
-            <Stack.Screen name="tips" />
-            <Stack.Screen name="tip-detail" />
-            <Stack.Screen name="achievements" />
-            <Stack.Screen name="stats" />
-            <Stack.Screen name="mood" />
-            <Stack.Screen name="mood-history" />
-            <Stack.Screen name="games" />
-            <Stack.Screen name="memory-game" />
-            <Stack.Screen name="trivia" />
-            <Stack.Screen name="stars-game" />
-            <Stack.Screen name="garden-game" />
-            <Stack.Screen name="settings" />
-            <Stack.Screen name="settings-notifications" />
-            <Stack.Screen name="settings-privacy" />
-            <Stack.Screen name="settings-help" />
-            <Stack.Screen name="settings-personal-data" />
-            <Stack.Screen name="settings-accessibility" />
-            <Stack.Screen name="settings-faq" />
-            <Stack.Screen name="settings-contact" />
-            <Stack.Screen name="settings-delete-account" />
-            <Stack.Screen name="settings-emotional-record" />
-            <Stack.Screen name="settings-app-permissions" />
-            <Stack.Screen name="settings-coins-help" />
-            <Stack.Screen name="settings-usage-tips" />
-          </Stack>
-          
+              {/* AQUÍ SE AGRUPA EL MENÚ INFERIOR */}
+              <Stack.Screen name="(tabs)" />
+
+              {/* Pantallas secundarias (sin menú inferior) */}
+              <Stack.Screen name="create-habit" />
+              <Stack.Screen name="breathe" />
+              <Stack.Screen name="shop" />
+              <Stack.Screen name="missions" />
+              <Stack.Screen name="tips" />
+              <Stack.Screen name="tip-detail" />
+              <Stack.Screen name="achievements" />
+              <Stack.Screen name="stats" />
+              <Stack.Screen name="mood" />
+              <Stack.Screen name="mood-history" />
+              <Stack.Screen name="games" />
+              <Stack.Screen name="memory-game" />
+              <Stack.Screen name="trivia" />
+              <Stack.Screen name="stars-game" />
+              <Stack.Screen name="garden-game" />
+              <Stack.Screen name="settings" />
+              <Stack.Screen name="settings-notifications" />
+              <Stack.Screen name="settings-privacy" />
+              <Stack.Screen name="settings-help" />
+              <Stack.Screen name="settings-personal-data" />
+              <Stack.Screen name="settings-accessibility" />
+              <Stack.Screen name="settings-faq" />
+              <Stack.Screen name="settings-contact" />
+              <Stack.Screen name="settings-delete-account" />
+              <Stack.Screen name="settings-emotional-record" />
+              <Stack.Screen name="settings-app-permissions" />
+              <Stack.Screen name="settings-coins-help" />
+              <Stack.Screen name="settings-usage-tips" />
+            </Stack>
+          </SafeAreaView>
           <Toast />
           <AchievementWatcher />
           <SyncWatcher />
-          
+
         </PersistGateComponent>
       </Provider>
     </SafeAreaProvider>
